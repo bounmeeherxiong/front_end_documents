@@ -54,6 +54,7 @@ function FormRecruitmentRequisition() {
                 <small>ຈຳນວນຕໍາແໜ່ງ(Number Required):</small>
                 <input
                     placeholder=".................................................................................................."
+                   
                     style={{
                         height: 30,
                         width: 400,

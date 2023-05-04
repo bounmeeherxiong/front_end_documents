@@ -7,6 +7,10 @@ import Index from "./page/Index";
 import axios from "axios";
 import { LoginContext } from "./page/contexts/LoginContext";
 import FormRecruitmentRequisition from "./page/FormRecruitmentRequisition";
+import CreateForm from "./page/CreateForm";
+import FormList from "./page/FormList";
+import EditForm from "./page/EditForm";
+import Testsize from "./page/Testsize"
 
 axios.defaults.baseURL = api;
 function App() {
@@ -20,7 +24,7 @@ function App() {
   }
 
   useEffect(() => {
-    OnloadListItemcard();
+
 
   }, []);
   return (
@@ -31,7 +35,11 @@ function App() {
           <Routes>
             <Route exact path="/" element={< Index />}></Route>
             <Route exact path="/Index" element={< Index />}></Route>
-            <Route exact path="/Form" element={< Form />}></Route>
+            <Route exact path="/Form/:id" element={< Form />}></Route>
+            <Route exact path="/EditForm/:id" element={< EditForm/>}></Route>
+            <Route exact path="/Testsize" element={< Testsize/>}></Route>
+            <Route exact path="/FormList" element={< FormList />}></Route>
+            <Route exact path="/CreateForm" element={< CreateForm />}></Route>
             <Route exact path="/FormRecruitmentRequisition" element={< FormRecruitmentRequisition />}></Route>
           </Routes>
         </Home>

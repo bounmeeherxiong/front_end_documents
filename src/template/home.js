@@ -91,7 +91,7 @@ export default function Home(props) {
   const Navigate = useNavigate();
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [listOpent, setListOpent] = useState(false);
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -143,13 +143,13 @@ export default function Home(props) {
         }}
       >
         <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawerClose}>
+          {/* <IconButton onClick={handleDrawerClose}>
             {theme.direction === "rtl" ? (
               <ChevronRightIcon />
             ) : (
               <ChevronLeftIcon />
             )}
-          </IconButton>
+          </IconButton> */}
         </div>
         <Divider />
         <List>
@@ -172,15 +172,30 @@ export default function Home(props) {
           </ListItem>
           <Collapse in={listOpent} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => Navigate("/Form")}>
+              <ListItem button className={classes.nested}>
                 <ListItemIcon>            
                 </ListItemIcon>
                 Form
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={() => Navigate("/FormList")}>
+                <ListItemIcon>            
+                </ListItemIcon>
+                List Form
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={() => Navigate("/CreateForm")}>
+                <ListItemIcon>            
+                </ListItemIcon>
+                Create Form
               </ListItem>
               <ListItem button className={classes.nested} onClick={()=>Navigate("/FormRecruitmentRequisition")} >
                 <ListItemIcon>            
                 </ListItemIcon>
                 Recruitment Form
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={() => Navigate("/Testsize")}>
+                <ListItemIcon>            
+                </ListItemIcon>
+                Test
               </ListItem>
             </List>
           </Collapse>
@@ -219,6 +234,7 @@ export default function Home(props) {
         <div className={classes.toolbar} />
         {props.children}
       </main>
+      
     </div>
   );
 }

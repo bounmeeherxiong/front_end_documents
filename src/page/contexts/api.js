@@ -1,3 +1,7 @@
 // export const api = 'http://192.168.30.56:8080'
-export const api = 'http://192.168.30.154:4300'
+export const api = 'http://192.168.1.4:3500'
+// export const api = 'http://192.168.40.232:3500'
+// export const api = 'http://192.168.30.23:3500'
+// export const api = 'http://192.168.43.123:3500'
+// export const api = 'http://192.168.30.59:3500'
 // export const api = 'http://192.168.43.24:2023'

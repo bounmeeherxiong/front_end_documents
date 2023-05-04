@@ -1,4 +1,4 @@
-import React, {useEffect,useState } from "react";
+import React, {useEffect,useState ,useRef} from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Rnd } from 'react-rnd';
@@ -10,9 +10,11 @@ import InputIcon from '@material-ui/icons/Input';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
+import PrintIcon from '@material-ui/icons/Print';
 import { Modal } from "react-bootstrap";
-export default function Form() {
-
+import ReactToPrint from "react-to-print";
+export default function EditForm() {
+  let componentRef=useRef(null)
   const {id}=useParams();
   const [datatable,setDatatable]=useState([])
   const [datatable1,setDatatable1]=useState([])
@@ -26,6 +28,8 @@ export default function Form() {
   const [getindex,setGetindex]=useState('')
   const [countRow,setCountRow]=useState('')
   const [countRow1,setCountRow1]=useState('')
+  const [countRow2,setCountRow2]=useState('')
+  const [countRow3,setCountRow3]=useState('')
   const [index1,setIndex1]=useState('')
   const [index2,setIndex2]=useState('')
   const [bold,setBold]=useState(false)
@@ -43,15 +47,17 @@ export default function Form() {
   const [usetable,setUsetable]=useState([])
   const [tablechidren,setTablechidren]=useState([])
   const [usetable1,setUsetable1]=useState([])
-  const [tablechidren1,setTablechidren1]=useState([])
   const [usetable2,setUsetable2]=useState([])
+  const [usetable3,setUsetable3]=useState([])
+  const [tablechidren1,setTablechidren1]=useState([])
   const [tablechidren2,setTablechidren2]=useState([])
+  const [tablechidren3,setTablechidren3]=useState([])
   const [inputValues,setInputValues]=useState('')
   const [inputValues1,setInputValues1]=useState('')
   const [inputValues2,setInputValues2]=useState('')
   const [inputValues3,setInputValues3]=useState('')
-  const [checkboxValues, setCheckboxValues] = useState({});
-
+  const [inputValues4,setInputValues4]=useState('')
+  const [inputValues5,setInputValues5]=useState('')
   const [showsave,setShowsave]=useState(false);
   const [widthsize,setWidthsize]=useState('')
   const [widthsize1,setWidthsize1]=useState('')
@@ -63,18 +69,26 @@ export default function Form() {
   const [tables3, setTables3] = useState([[]])
   const [tables4, setTables4] = useState([[]])
   const [saveAs,setSaveAs]=useState('')
+  const handleShow = () => setShow(true);
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   const OnloadListData=()=>{
     axios.get(`/documents/api/input/gettransaction_id/${id}`).then((data)=>{
+     
       setUsetable([...data?.data?.datatable])
       setUsetable1([...data?.data?.datatable1])
       setUsetable2([...data?.data?.datatable2])
-      setCountRow([...data?.data?.datatable][0].countrow)
+      setUsetable3([...data?.data?.datatable3])
+     
+  
      
       if([...data?.data?.datatable].length == 0){
 
       }else{
-
+        setCountRow([...data?.data?.datatable][0].countrow)
         setTablechidren(JSON.parse([...data?.data?.datatable][0].body_table))
       }
 
@@ -88,11 +102,18 @@ export default function Form() {
       if([...data?.data?.datatable2].length == 0){
      
       }else{ 
+      
       setTablechidren2(JSON.parse([...data?.data?.datatable2][0].body_table))
       }
+      if([...data?.data?.datatable3].length == 0){
+     
+      }else{ 
+      setCountRow3([...data?.data?.datatable3][0].countRow)
+      setTablechidren3(JSON.parse([...data?.data?.datatable3][0].body_table))
+      }
+      
       setUselable([...data?.data?.datalable])
       setUsecheckbox([...data?.data?.datacheckbox])
-      console.log("usecheckbox=",[...data?.data?.datacheckbox])
       setUsetextlist([...data?.data?.datatextlis])
     }).catch((err)=>{
       console.log(err)
@@ -104,24 +125,28 @@ export default function Form() {
   const handleCloseSavle=()=>{
     setShowsave(false)
   }
-  const OnCreate=()=>{
-    setShowsave(false)
-     let informdata={
-      informdatatable:datatable,
-      informdatatable1:datatable1,
-      informdatatable2:datatable2,
-      informdatalable:datalable,
-      informdatalisttext:listtext,
-      informdatachekbox:datacheckbox,
-      datasave:saveAs,
-      datainformations:tables,
-      datainformations1:tables1,
-      datainformations2:tables2
-     }
-    axios.post("/documents/api/input/create",informdata).then((data)=>{
-    }).catch((err)=>{
-      console.log(err)
-    })
+
+const OnUpdate=()=>{
+  let informdataUpdate={
+    informdatalable:datalable,
+    uid1:id,
+    informdatalableupdate:uselable,
+    informdatalisttextupdate:usetextlist,
+    informdatalisttext:listtext,
+    inormadatatableupdate:usetable,
+    tablechidren:tablechidren,
+    datatable:datatable,
+    datatablelise:tables,
+    usecheckbox:usecheckbox
+  }
+  axios.post("/documents/api/input/update",informdataUpdate).then((data)=>{
+    OnloadListData()
+    setDatalable('')
+    setDatatable('')
+
+  }).catch((err)=>{
+    console.log(err)
+  })
 }
   
   const onCreateTable = () => {
@@ -244,7 +269,6 @@ export default function Form() {
         let data;
         if(row == 2){
           data=[{ name:'',value: '1',cols: 1,rows: 1,width:80,height:50 },{ name:'',value: '1',cols: 1,rows: 1,width:100,height:50  }]
-       
         }else if(row == 3){
           data=[{ name:'',value: '1',cols: 1,rows: 1,width:80,height:50},{ name:'',value: '1',cols: 1,rows: 1,width:100,height:50 },{ name:'',value: '1',cols: 1,rows: 1,width:100,height:50 }]
         }else if(row == 4){
@@ -275,8 +299,7 @@ export default function Form() {
     }
 
   const Onclickrow=()=>{
-    console.log("2row")
-    console.log("row=",countRow)
+    
     const array=tablechidren.map((item)=>{
       return item
     })
@@ -294,7 +317,6 @@ export default function Form() {
       }else if(countRow == 6){
 
       }
-
       list.push(data)
     }
     const result=[...array,...list]
@@ -325,21 +347,6 @@ export default function Form() {
     const result=[...array,...list]
    setTablechidren1([...result])
   }
-  const allsave=()=>{
-    let data={
-      tableposition:usetable,
-      tableposition1:usetable1,
-      tableposition2:usetable2,
-      lableposition:uselable,
-      chidrentable:tablechidren,
-      chidrentable1:tablechidren1,
-      chidrentable2:tablechidren2,
-      usetextlist:usetextlist,
-      usecheckbox:usecheckbox
-    }
-    console.log("data=",data)
-  }
-  
 
   const changeText = (value, key, index) => {
     const object = { ...usetextlist[index] };
@@ -411,6 +418,16 @@ export default function Form() {
     const cloneData = [...tablechidren]  
     setTablechidren([...cloneData])
   };
+  const changeText1 = (value, key, index1,index) => {
+    const cloneTables = [...tables]
+    const datarow=cloneTables[index1]
+    const object=datarow[index]
+    object[key]=value;
+    const cloneData = [...tables]
+    setTables([...cloneData])
+ 
+
+  };
   const changeTextheight1 = (value, key, index2,index1) => {
     setHeightsize1(value)
     const cloneTables = [...tablechidren1]
@@ -479,12 +496,20 @@ const deletelable=(index)=>{
 }
 
   const onDragStoptable = (e, d, index) => {
-    const cloneDatas = [...usetable]
-    const cloneData = { ...usetable[index] }
+    const cloneDatas = [...datatable]
+    const cloneData = { ...datatable[index] }
     cloneData.positionX = d.x;
     cloneData.positionY = d.y
     cloneDatas[index] = cloneData
-    setUsetable([...cloneDatas])
+    setDatatable([...cloneDatas])
+}
+const onDragStoptableupdate = (e, d, index) => {
+  const cloneDatas = [...usetable]
+  const cloneData = { ...usetable[index] }
+  cloneData.positionX = d.x;
+  cloneData.positionY = d.y
+  cloneDatas[index] = cloneData
+  setUsetable([...cloneDatas])
 }
 const onDragStoptable1 = (e, d, index) => {
   const cloneDatas = [...usetable1]
@@ -511,16 +536,9 @@ const onDragStopcheckbox = (e, d, index) => {
   setUsecheckbox([...cloneDatas])
 }
     const OnClickCheckbox=(index)=>{
-      console.log("dataindex=",index)
-    
       setGetindex(index)
       const cloneData=usecheckbox[index]
       setEditcheckboxvalues(cloneData.name)
-      const copy=[...usecheckbox]
-      
-   
- 
-      
     }
   const Onclicktextlist=(index)=>{
     const cloneData=usetextlist[index]
@@ -569,18 +587,6 @@ const onDragStopcheckbox = (e, d, index) => {
     const cloneData = [...tablechidren2]
     setTablechidren2([...cloneData])
   };
-  const handleCheckboxChange = (e,key,index) => {
-    const {checked } = e.target;
-    const clonecheckbox=[...usecheckbox]
-    const object=clonecheckbox[index]
-    console.log("Obkect=",object)
-    object[key]=checked;
-    const cloneData=[...usecheckbox]
-    console.log("cloneData=",cloneData)
-    setUsecheckbox([...cloneData])
-
-  
-  }
   const changeCheckbox=(value,key,getindex)=>{
     setEditcheckboxvalues(value)
     const object = { ...usecheckbox[getindex] };
@@ -588,6 +594,7 @@ const onDragStopcheckbox = (e, d, index) => {
     const cloneData = [...usecheckbox];
     cloneData[getindex] = { ...object };
     setUsecheckbox([...cloneData]);
+
   }
   const deletecheckbox=(index)=>{
     setEditcheckboxvalues('')
@@ -609,6 +616,14 @@ const onDragStopcheckbox = (e, d, index) => {
   }
 
 const onDragStoplable= (e, d, index) => {
+  const cloneDatas = [...datalable]
+  const cloneData = { ...datalable[index] }
+  cloneData.positionX = d.x;
+  cloneData.positionY = d.y
+  cloneDatas[index] = cloneData
+  setDatalable([...cloneDatas])
+}
+const onDragStoplableupdate= (e, d, index) => {
   const cloneDatas = [...uselable]
   const cloneData = { ...uselable[index] }
   cloneData.positionX = d.x;
@@ -618,10 +633,24 @@ const onDragStoplable= (e, d, index) => {
 }
 const onClickOnElement = (index) => {
   setGetindex(index)
+  const cloneData = datalable[index]
+  setEditlable(cloneData.name)
+  setFontSize(cloneData.font)
+
+}
+const onClickOnElementupdate = (index) => {
+  setGetindex(index)
   const cloneData = uselable[index]
   setEditlable(cloneData.name)
   setFontSize(cloneData.font)
 
+}
+const Onclicktableindex=(index)=>{
+  setShowdeltable(true)
+  setShowdeltable1(false)
+  setShowdeltable2(false)
+
+  setGetindex(index)
 }
 
 
@@ -663,8 +692,14 @@ const onClickOnElement = (index) => {
     cloneDatas[index]=cloneData
     setListText([...cloneDatas])
   }
-
-
+  const onDragStopinputupdate=(e,d,index)=>{
+    const cloneDatas=[...usetextlist]
+    const cloneData={...usetextlist[index]}
+    cloneData.positionX=d.x;
+    cloneData.positionY=d.y
+    cloneDatas[index]=cloneData
+    setUsetextlist([...cloneDatas])
+  }
 
   useEffect(()=>{
     OnloadListData()
@@ -731,26 +766,26 @@ const onClickOnElement = (index) => {
                     backgroundColor: '#3f51b5',
                     color:'#fff'
                 }} 
-                onClick={()=>{OnCreate()}}
+                onClick={()=>{OnUpdate()}}
                 >Save</button>
               </div>
               <div style={{height:5}}>
 
               </div>
             </Modal>
-      <div style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',position:'fixed',top:65,left:264,right:25,zIndex:999,height:50,backgroundColor:'white'}}>
+            <div style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',position:'fixed',top:65,left:264,right:25,zIndex:999,height:50,backgroundColor:'white'}}>
               <div style={{backgroundColor:'#3f51b5', border: '1px solid #ccc',borderRadius:3,width:80,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnAddText()}}>
                 <InputIcon style={{color:'#fff'}} />
                 <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Input</small>
               </div>
               <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} 
-              
+              onClick={()=>{handleShow()}}
               >
                 <BorderAllIcon style={{color:'#fff'}} />
                 <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Table</small>
               </div>
       
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}}>
+              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewItem()}}>
                 <TextFormatIcon style={{color:'#fff'}} />
                 <small style={{color:'#fff',fontWeight:'bold'}} >Text</small>
               </div>
@@ -760,25 +795,76 @@ const onClickOnElement = (index) => {
                 <small style={{color:'#fff'}}  >CheckBox</small>
               </div>
          
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>allsave()}>
+              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdate()}}>
                 <SaveIcon style={{color:'#fff'}} />
                 <small style={{color:'#fff'}}  >Save</small>
               </div>
+              <ReactToPrint 
+              trigger={()=>
+                <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} >
+                <PrintIcon style={{color:'#fff'}} />
+                <small style={{color:'#fff'}}  >Print</small>
+    
+              </div>
+              }
+              content={()=>componentRef}
+
+              />
+        
       </div>
         <div style={{height:20}}>
         </div>
-
-        <div style={{display:'flex', flexDirection:'row',justifyContent:'flex-start',backgroundColor:'yellow',marginTop:10}} >
-            <div style={{width: '86%',height: 2000,border: '1px solid #000',backgroundColor:'white'}}>
-                {/* {JSON.stringify(usecheckbox)} */}
-                {/* {JSON.stringify(checkboxValues)} */}
-                {/* {JSON.stringify(usetable2)} */}
-
-
-
+        <div    style={{display:'flex', flexDirection:'row',justifyContent:'flex-start',backgroundColor:'yellow',marginTop:10}}  >
+            <div   style={{width: '86%',height: 2000,border: '1px solid #000',justifyContent:'flex-start',backgroundColor:'white'}}>
+                {/* {JSON.stringify(datatable)} */}
+                {
+                datatable && datatable.map((el, index) => {
+                  if (el.type === 'table') {
+                    return (
+                        <Rnd
+                          key={index}
+                          default={{
+                            x: el.positionX,
+                            y: el.positionY,
+                   
+                          }}
+                          onDragStop={(e, d) => onDragStoptable(e, d, index)}
+                          onClick={()=>{Onclicktable(index)}}
+                        >
+                        <table style={{border:'1px solid gray'}}  >
+                          {
+                          tables && tables.map((item,index1)=>{
+                            return(
+                              <>
+                              <tr key={index1} style={{border:'1px solid gray'}}>
+                                {
+                                  item.map((data,index)=>{
+                                    return(
+                                      <>
+                                      <td key={index} style={{width:`${data.width}px`,border:'1px solid gray'}}  colSpan={data.cols} rowSpan={data.rows}>
+                                        <textarea value={data?.name}  
+                                        onChange={(e)=>{changeText1(e.target.value,'name',index1,index)}} 
+                                        onClick={()=>{OnclickTablefirst(index,index1)}}
+                                        style={{border:'none',width:'100%',height:`${data?.height}px`}} />
+                                      </td>
+                                      </>
+                                    )
+                                  })
+                                }
+                              </tr>
+                              </>
+                            )
+                          })
+                          }
+                        </table>
+                        </Rnd>
+                      )
+                  }
+                })
+              }
+               
             {
             usetable && usetable.map((el,index)=>{
-             
               return(
                 <div key={index}>
                 <Rnd
@@ -787,7 +873,7 @@ const onClickOnElement = (index) => {
                   y: el.positionY,
                  
                 }}
-                onDragStop={(e, d) => onDragStoptable(e, d, index)}
+                onDragStop={(e, d) => onDragStoptableupdate(e, d, index)}
                 onClick={()=>{Onclicktable(index)}}
               >
       
@@ -920,6 +1006,56 @@ const onClickOnElement = (index) => {
               )
             })
           }
+          {
+            usetable3 && usetable3.map((el,index)=>{
+              return(
+                <div key={index}>
+                <Rnd
+                default={{
+                  x: el.positionX,
+                  y: el.positionY,
+                 
+                }}
+                onDragStop={(e, d) => onDragStoptable2(e, d, index)}
+                // onClick={()=>{Onclicktable(index)}}
+            
+              >
+      
+                
+            <table style={{border:'1px solid gray'}}>
+              {
+                  tablechidren3 && tablechidren3.map((item,index1)=>{
+                    return(
+                      <>
+                      <tr key={index1} style={{width:`${item.width}px`,border:'1px solid gray'}}>
+                        {
+                          item.map((data,index2)=>{
+                            return(
+                              <>
+                              <td key={index2} style={{border:'1px solid gray',width:`${data.width}px`}}  colSpan={data.cols} rowSpan={data.rows}>
+                         
+                                      <textarea value={data?.name}  
+                                        onChange={(e)=>{changeTexttable2(e.target.value,'name',index1,index2)}} 
+                                        // onClick={()=>{OnclickTable(index,index1)}}
+                                        style={{border:'none',width:'100%',height:`${data?.height}px`}} />
+                              </td>
+                              </>
+                            )
+                          })
+                        }
+                      </tr>
+                      </>
+                    )
+                  })
+              }
+            </table>
+              </Rnd>
+              </div>
+              )
+            })
+          }
+
+
           {               
               uselable && uselable.map((el,index)=>{ 
                 return (
@@ -930,15 +1066,37 @@ const onClickOnElement = (index) => {
                       y: el.positionY,
                     
                     }}
-                    onDragStop={(e, d) => onDragStoplable(e, d, index)}
-                    onClick={() => onClickOnElement(index)}
+                    onDragStop={(e, d) => onDragStoplableupdate(e, d, index)}
+                    onClick={() => onClickOnElementupdate(index)}
+                    style={{display:'flex',justifyContent:'flex-start',backgroundColor:'red'}}
                   >
+          
                      <small style={{fontSize:el.font,fontWeight:el.fontWeight}}>{el.name}</small>
                   </Rnd>
                 )
                 
               })
             }
+            {
+                datalable && datalable.map((el,index)=>{
+                  return (
+                    <>
+                    <Rnd
+                      key={index}
+                      default={{
+                        x: el.positionX,
+                        y: el.positionY,
+                      }}
+                      onDragStop={(e, d) => onDragStoplable(e, d, index)}
+                      onClick={() => onClickOnElement(index)}
+                    >
+                      <small style={{fontSize:el.font,fontWeight:el.fontWeight}}>{el.name}</small>
+                    </Rnd>
+                    </>
+                  )
+
+                })
+              }
             {
               usecheckbox && usecheckbox.map((el,index)=>{
                 return (
@@ -953,11 +1111,7 @@ const onClickOnElement = (index) => {
                     onClick={()=>OnClickCheckbox(index)}
                   >
                     <div style={{display:'flex',flexDirection:'row'}}>
-                      <input 
-                      type="checkbox"
-                      value={el?.name}
-                      onChange={(e)=>{handleCheckboxChange(e,'check',index)}}
-                      style={{cursor:'pointer'}} />
+                      <input type="checkbox"  style={{cursor:'pointer'}} />
                       <small style={{marginLeft:5}}>{el.name}</small>
                 
                       </div>
@@ -974,8 +1128,8 @@ const onClickOnElement = (index) => {
                 default={{
                   x: e.positionX,
                   y: e.positionY,
-
                 }}
+                onDragStop={(e, d) => onDragStopinputupdate(e, d, index)}
                 >
                 <RowComponent
                 index={index}
@@ -1157,6 +1311,34 @@ const onClickOnElement = (index) => {
             </div>
             </div>
         </div>
+        {/* ====================================funcionst printer====================== */}
+        <div style={{display:'none',width:'100%'}} >
+          <div  ref={(el) => (componentRef = el)} style={{display:'flex',flexDirection:'row', justifyContent:'center',justifyItems:'center', width: '100%',backgroundColor:'green'}}>
+          {               
+              uselable && uselable.map((el,index)=>{ 
+                return (
+                  <Rnd
+                    key={index}
+                    default={{
+                      x: el.positionX,
+                      y: el.positionY,
+                    
+                    }}
+                    onDragStop={(e, d) => onDragStoplableupdate(e, d, index)}
+                    onClick={() => onClickOnElementupdate(index)}
+                    style={{display:'flex',justifyContent:'flex-start',backgroundColor:'red'}}
+                  >
+          
+                     <small style={{fontSize:el.font,fontWeight:el.fontWeight}}>{el.name}</small>
+                  </Rnd>
+                )
+                
+              })
+            }
+          </div>
+
+
+        </div>
         
     </>
   )
@@ -1331,3 +1513,4 @@ function CompoentStyleForCheckBox({editcheckboxvalues,changeCheckbox,getindex,de
     </>
   )
 }
+
