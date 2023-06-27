@@ -8,22 +8,20 @@ import BorderAllIcon from '@material-ui/icons/BorderAll';
 import InputIcon from '@material-ui/icons/Input';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
-import CommentIcon from '@material-ui/icons/Comment';
-import SendIcon from '@material-ui/icons/Send';
 import AddIcon from '@material-ui/icons/Add';
 import PrintIcon from '@material-ui/icons/Print';
-import { makeStyles } from '@material-ui/core/styles';
 import { Modal } from "react-bootstrap";
 import ReactToPrint from "react-to-print";
+import Cookies from 'js-cookie';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
+import { makeStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
-import { Spinner } from "react-bootstrap";
-
+import CommentIcon from '@material-ui/icons/Comment';
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
@@ -32,10 +30,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-export default function EditForm() {
+export const UserusingForm = () => {
   const classes = useStyles();
   let componentRef = useRef(null)
-  const [isLoading, setIsLoading,] = useState(false);
   const { id } = useParams();
   const [datatable, setDatatable] = useState([])
   const [datatable1, setDatatable1] = useState([])
@@ -78,9 +75,8 @@ export default function EditForm() {
   const [inputValues1, setInputValues1] = useState('')
   const [inputValues2, setInputValues2] = useState('')
   const [inputValues3, setInputValues3] = useState('')
-  const [inputValues4, setInputValues4] = useState('')
-  const [inputValues5, setInputValues5] = useState('')
   const [selectedImage, setSelectedImage] = useState([])
+  const [au_number, setAu_number] = useState('')
   const [showsave, setShowsave] = useState(false);
   const [widthsize, setWidthsize] = useState('')
   const [widthsize1, setWidthsize1] = useState('')
@@ -94,59 +90,53 @@ export default function EditForm() {
   const [tables3, setTables3] = useState([[]])
   const [tables4, setTables4] = useState([[]])
   const [saveAs, setSaveAs] = useState('')
+
+  const [file, setFile] = useState();
   const [textarea, setTextarea] = useState('')
+  let users = Cookies.get("user");
+  let data_user = JSON.parse(users)
+  let user_id = data_user?.user?.user_id
   const handleShow = () => setShow(true);
+  const handlesaveShow = () => setShowsave(true)
+  const handleCloseSavle = () => {
+    setShowsave(false)
+  }
   const handleshowcoments = () => { setShowcoments(true) }
   const handlePrint = () => {
     window.print();
   };
-  const OnloadCommentsdata = () => {
-    axios.get(`/api/form-reply/Get-Reply-Status/${id}`).then((e) => {
 
-      if(e.length == 0){
-
-      }else{
-        setTextarea([...e?.data?.results][0].comments)
-      }
-
-    })
+  const OnloadDepartment = () => {
+    axios.get('/api/no/get-department').then((data) => {
+    }).catch((err) => (
+      console.log(err)
+    ))
   }
-
   const OnloadListData = () => {
+    // /api/form/get-form
     axios.get(`/api/form/get-form/${id}`).then((data) => {
       setformstatus([...data?.data?.dataForms][0].formstatus)
       setUsetable([...data?.data?.GetTable_position_one])
       setUsetable1([...data?.data?.GetTable_positions_two])
       setUsetable2([...data?.data?.GetTable_positions_three])
       setSelectedImage([...data?.data?.GetImage_positions])
- 
-
       if ([...data?.data?.GetTable_position_one].length == 0) {
-
       } else {
         setCountRow([...data?.data?.GetTable_position_one][0].countrow)
         setTablechidren(JSON.parse([...data?.data?.GetTable_position_one][0].body_table))
       }
-
       if ([...data?.data?.GetTable_positions_two].length == 0) {
 
       } else {
         setCountRow1([...data?.data?.GetTable_positions_two][0].countrow)
         setTablechidren1(JSON.parse([...data?.data?.GetTable_positions_two][0].body_table))
       }
-      // if([...data?.data?.datatable2].length == 0){
-
-      // }else{ 
-
-      // setTablechidren2(JSON.parse([...data?.data?.datatable2][0].body_table))
-      // }
       if ([...data?.data?.GetTable_positions_three].length == 0) {
 
       } else {
         setCountRow3([...data?.data?.GetTable_positions_three][0].countRow)
         setTablechidren3(JSON.parse([...data?.data?.GetTable_positions_three][0].body_table))
       }
-
       setUselable([...data?.data?.GetTable_label])
       setUsecheckbox([...data?.data?.GetTable_checkbox])
       setUsetextlist([...data?.data?.resuGetTable_sizeforinputlts])
@@ -160,14 +150,15 @@ export default function EditForm() {
   const handleCloseComments = () => {
     setShowcoments(false)
   }
-  const handleCloseSavle = () => {
-    setShowsave(false)
-  }
+  const onSelectFile = (event) => {
+    setFile(event.target.files);
+
+  };
+
 
   const OnUpdate = () => {
-    setIsLoading(true);
     let informdataUpdate = {
-      form_uid: id,
+      req_uid: id,
       UpdateDataCheckbox: usecheckbox,
       UpdateDataLable: uselable,
       UpdateSizeForInput: usetextlist,
@@ -183,42 +174,75 @@ export default function EditForm() {
       InsertPositionOne: datatable,
       DataTablepositionOne: tables,
     }
-    axios.post("/api/form/update-form", informdataUpdate).then((data) => {
+    axios.post("/api/req/update-request-form", informdataUpdate).then((data) => {
       OnloadListData()
-      setIsLoading(false);
-
     }).catch((err) => {
       console.log(err)
     })
   }
-
-  const OnUpdateorformstatus = () => {
-    setIsLoading(true);
-    let informdataUpdate = {
-      form_uid: id,
-      UpdateDataCheckbox: usecheckbox,
-      UpdateDataLable: uselable,
-      UpdateSizeForInput: usetextlist,
-      UpdatePositionsOne: usetable,
-      DataTablepositionOneupdate: tablechidren,
-      UpdatePositionsTwo: '',
-      DataTablepositiontwoupdate: '',
-      UpdatePositionsThree: '',
-      DataTablepositionThreeupdate: '',
-      InsertDataCheckbox: datacheckbox,
-      InsertDataLable: datalable,
-      InsertSizeForInput: listtext,
-      InsertPositionOne: datatable,
-      DataTablepositionOne: tables,
+  const OnCreate = async () => {
+    let images
+    setShowsave(false)
+    if (!file) {
+      images = 0
+    } else {
+      let formData = new FormData();
+      for (const key of Object.keys(file)) {
+        formData.append("file_name", file[key]);
+      }
+      formData.append("file_name", file);
+      let profileImageReturnName = await axios.post("/api/req/upload", formData);
+      images = profileImageReturnName.data;
     }
-    axios.post("/api/form/update-form-draft", informdataUpdate).then((data) => {
-      OnloadListData()
-      setIsLoading(false);
+    let informdata = {
+      form_id: id,
+      title: saveAs,
+      req_status: 0,
+      docno_status: 0,
+      doc_no: 0,
+      created_by: user_id,
+      InsertDataCheckbox: usecheckbox,
+      InsertDataLable: uselable,
+      InsertPositionOne: usetable,
+      DataTablepositionOne: tablechidren,
+      InsertPositionsTwo: '',
+      DataTablepositiontwo: '',
+      InsertPositionsThree: '',
+      DataTablepositionThree: '',
+      InsertSizeForInput: usetextlist,
+      file_name: images,
+    }
+    axios.post("/api/req/insert-request-form", informdata).then((data) => {
+      console.log(data)
     }).catch((err) => {
       console.log(err)
     })
   }
 
+  // const OnUpdateorformstatus = () => {
+  //   let informdataUpdate = {
+  //     form_uid: id,
+  //     UpdateDataCheckbox: usecheckbox,
+  //     UpdateDataLable: uselable,
+  //     UpdateSizeForInput: usetextlist,
+  //     UpdatePositionsOne: usetable,
+  //     DataTablepositionOneupdate: tablechidren,
+  //     UpdatePositionsTwo: '',
+  //     DataTablepositiontwoupdate: '',
+  //     UpdatePositionsThree: '',
+  //     DataTablepositionThreeupdate: '',
+  //     InsertDataCheckbox: datacheckbox,
+  //     InsertDataLable: datalable,
+  //     InsertSizeForInput: listtext,
+  //     InsertPositionOne: datatable,
+  //     DataTablepositionOne: tables,
+  //   }
+  //   axios.post("/api/form/update-form-draft", informdataUpdate).then((data) => {
+  //     OnloadListData()
+  //   }).catch((err) => {
+  //     console.log(err)
+  //   })
+  // }
   const onCreateTable = () => {
     if (datatable.length == 0) {
       setShow(false)
@@ -805,9 +829,12 @@ export default function EditForm() {
     setUsetextlist([...cloneDatas])
   }
 
+
+
   useEffect(() => {
     OnloadListData()
-    OnloadCommentsdata()
+    OnloadDepartment()
+
   }, [])
   return (
     <>
@@ -816,18 +843,16 @@ export default function EditForm() {
           <span style={{ fontSize: 14, paddingTop: 10 }}>
             List Comment </span>
         </Modal.Header>
-        <div style={{ width: '100%', marginTop: 20 }}>
-          <TextField
-            style={{ width: '95%', height: 300, marginLeft: 20 }}
-            id="outlined-multiline-static"
-            multiline
+        <div style={{ width: '100%' }}>
+          <textarea
             value={textarea}
             onChange={(e) => setTextarea(e.target.value)}
-            defaultValue="Default Value"
-            variant="outlined"
+            style={{ width: '100%', height: 200 }}
           />
         </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10 }}>
 
+        </div>
       </Modal>
       <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="sm">
         <Modal.Header closeButton>
@@ -864,96 +889,37 @@ export default function EditForm() {
         </div>
 
       </Modal>
+
       <Modal show={showsave} onHide={handleCloseSavle} style={{ paddingTop: 50 }} size="sm">
         <Modal.Header closeButton>
-          <span style={{ fontSize: 14, paddingTop: 10 }}>
+          <span style={{ fontSize: 20, paddingTop: 10 }}>
             Save As</span>
         </Modal.Header>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
-          <div>
-            <small>Form Name:</small>
-            <input
-              placeholder="Form Name"
-              value={saveAs}
-              onChange={e => setSaveAs(e.target.value)}
-              style={{ width: 200, marginLeft: 10 }} />
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10 }}>
+          <TextField
+            style={{ width: '90%', marginLeft: 10 }}
+            value={saveAs}
+            onChange={e => setSaveAs(e.target.value)}
+            id="standard-basic"
+            label="Form Name" />
 
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10 }}>
 
-          <button
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: 3,
-              paddingLeft: 20, paddingRight: 20,
-              backgroundColor: '#3f51b5',
-              color: '#fff'
-            }}
-            onClick={() => { OnUpdate() }}
-          >Save</button>
+          <Button
+            style={{ marginRight: 20, marginBottom: 10 }}
+            variant="contained"
+            color="primary"
+            size="small"
+            className={classes.button}
+            startIcon={<SaveIcon />}
+            onClick={() => { OnCreate() }}
+          >
+            Save
+          </Button>
         </div>
-        <div style={{ height: 5 }}>
 
-        </div>
       </Modal>
-      {/* <div style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',position:'fixed',top:65,left:264,right:25,zIndex:999,height:50,backgroundColor:'white'}}>
-              <div style={{backgroundColor:'#3f51b5', border: '1px solid #ccc',borderRadius:3,width:80,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnAddText()}}>
-                <InputIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Input</small>
-              </div>
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} 
-              onClick={()=>{handleShow()}}
-              >
-                <BorderAllIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Table</small>
-              </div>
-      
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewItem()}}>
-                <TextFormatIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',fontWeight:'bold'}} >Text</small>
-              </div>
-  
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewCheckbox()}}>
-                <CheckBoxIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >CheckBox</small>
-              </div>
-                 {
-                  formstatus == 0 ? (
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdate()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Save</small>
-                    </div>
-                  </>
-                  ):(
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdateorformstatus()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Savef</small>
-                    </div>
-                  
-                  </>)
-                 }
-           
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{handleshowcoments()}}>
-                <CommentIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >comments</small>
-              </div>
-              <ReactToPrint 
-              trigger={()=>
-                <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} >
-                <PrintIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >Print</small>
-    
-              </div>
-              }
-              content={()=>componentRef}
-
-              />
-        
-      </div> */}
-
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'fixed', top: 65, left: 264, right: 25, zIndex: 0, height: 50, backgroundColor: '#ebedef' }}>
         <div>
           <Breadcrumbs aria-label="breadcrumb" style={{ marginTop: 10 }}>
@@ -969,154 +935,31 @@ export default function EditForm() {
             </Typography>
 
           </Breadcrumbs>
+
+
         </div>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }}>
-
-            <Button
-
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<InputIcon />}
-              onClick={() => { OnAddText() }}
-            >
-              Input
-            </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }}
-            onClick={() => { handleShow() }}
-          >
-
-            <Button
-
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<BorderAllIcon />}
-              onClick={() => { handleShow() }}
-            >
-              Table
-            </Button>
-          </div>
-
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 30 }}>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }} onClick={() => { handlesaveShow() }}>
             <Button
               variant="contained"
               color="primary"
               size="small"
               className={classes.button}
-              startIcon={<TextFormatIcon />}
-              onClick={() => { onAddNewItem() }}
+              startIcon={<SaveIcon />}
+              onClick={() => { handlesaveShow() }}
             >
-              Text
-            </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 70, cursor: 'pointer', height: 30, marginTop: 10 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<CheckBoxIcon />}
-              onClick={() => { onAddNewCheckbox() }}
-            >
-              CheckBox
+              save
             </Button>
 
           </div>
 
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }}
-          >
-            {formstatus == 0 ? (<>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                className={classes.button}
-                startIcon={<SaveIcon />}
-                onClick={() => { OnUpdate() }}
-              >
-                {!isLoading ? (
-                  <>
-                    Save
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="light" size='sm' />
-                    }
-                  </>)
-                }
 
 
-              </Button>
-
-            </>) : (<>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                className={classes.button}
-                startIcon={<SaveIcon />}
-                onClick={() => { OnUpdateorformstatus() }}
-              >
-                {!isLoading ? (
-                  <>
-                    Save
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="light" size='sm' />
-                    }
-                  </>)
-                }
-
-
-
-              </Button>
-
-            </>)
-
-            }
-
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 70, cursor: 'pointer', height: 30, marginTop: 10 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<CommentIcon />}
-              onClick={() => { handleshowcoments() }}
-            >
-              Comment
-            </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 37, cursor: 'pointer', height: 30, marginTop: 10 }}
-
-          >
-            <label htmlFor="contained-button-file" style={{ position: 'absolute' }}>
-              <Button variant="contained" color="primary" size="small" component="span">
-                Upload
-              </Button>
-            </label>
-            <input
-              style={{ color: 'white', width: 10, marginLeft: 30 }}
-              accept="image/*"
-              className={classes.input}
-              id="contained-button-file"
-              multiple
-              type="file"
-            />
-
-          </div>
           <ReactToPrint
             trigger={() =>
-              <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }} >
+              <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 17 }} >
+                {/* <PrintIcon style={{ color: '#fff' }} />
+                <small style={{ color: '#fff' }}  >Print</small> */}
                 <Button
                   variant="contained"
                   color="primary"
@@ -1125,17 +968,22 @@ export default function EditForm() {
                   startIcon={<PrintIcon />}
 
                 >
-                  Print
+                  print
                 </Button>
-
               </div>
             }
             content={() => componentRef}
           />
+          {/* <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }} onClick={() => { handlesaveShow() }}>
+               
+               <small style={{ color: '#fff' }}  >{au_number}</small>
+       </div> */}
+
+
+
         </div>
 
       </div>
-
       <div style={{ height: 20 }}>
       </div>
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', backgroundColor: '#ebedef', marginTop: 10 }}  >
@@ -1186,7 +1034,6 @@ export default function EditForm() {
               }
             })
           }
-
           {
             usetable && usetable.map((el, index) => {
               return (
@@ -1502,10 +1349,11 @@ export default function EditForm() {
                     e={e}
                   />
                 </Rnd>
+
               )
             })
           }
-          {
+                    {
             selectedImage && selectedImage.map((e, index) => {
               return (
                 <Rnd
@@ -1513,11 +1361,11 @@ export default function EditForm() {
                     x: e.positionX,
                     y: e.positionY,
                   }}
-                  // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
-                  // onClick={() => { OnClickCheckimage(index) }}
+                // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
+                // onClick={() => { OnClickCheckimage(index) }}
                 >
                   {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
-                  <img src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
+                  <img key={index} src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
                 </Rnd>
               )
             })
@@ -1726,8 +1574,6 @@ export default function EditForm() {
 
     </>
   )
-
-
 }
 
 function RowComponent({ changeText, Onclicktextlist, e, index }) {
@@ -1963,4 +1809,3 @@ function CompoentStyleForCheckBox({ editcheckboxvalues, changeCheckbox, getindex
     </>
   )
 }
-

@@ -2,28 +2,24 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Rnd } from 'react-rnd';
-import TextFormatIcon from '@material-ui/icons/TextFormat';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import BorderAllIcon from '@material-ui/icons/BorderAll';
-import InputIcon from '@material-ui/icons/Input';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
-import CommentIcon from '@material-ui/icons/Comment';
-import SendIcon from '@material-ui/icons/Send';
 import AddIcon from '@material-ui/icons/Add';
 import PrintIcon from '@material-ui/icons/Print';
-import { makeStyles } from '@material-ui/core/styles';
 import { Modal } from "react-bootstrap";
 import ReactToPrint from "react-to-print";
-import TextField from '@material-ui/core/TextField';
+import Cookies from 'js-cookie';
+import CommentIcon from '@material-ui/icons/Comment';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
+import { makeStyles } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField';
+import SendIcon from '@material-ui/icons/Send';
 import { Spinner } from "react-bootstrap";
-
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
@@ -32,10 +28,10 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-export default function EditForm() {
+
+export default function Viewdetailform() {
   const classes = useStyles();
   let componentRef = useRef(null)
-  const [isLoading, setIsLoading,] = useState(false);
   const { id } = useParams();
   const [datatable, setDatatable] = useState([])
   const [datatable1, setDatatable1] = useState([])
@@ -80,7 +76,6 @@ export default function EditForm() {
   const [inputValues3, setInputValues3] = useState('')
   const [inputValues4, setInputValues4] = useState('')
   const [inputValues5, setInputValues5] = useState('')
-  const [selectedImage, setSelectedImage] = useState([])
   const [showsave, setShowsave] = useState(false);
   const [widthsize, setWidthsize] = useState('')
   const [widthsize1, setWidthsize1] = useState('')
@@ -94,33 +89,29 @@ export default function EditForm() {
   const [tables3, setTables3] = useState([[]])
   const [tables4, setTables4] = useState([[]])
   const [saveAs, setSaveAs] = useState('')
+  const [isLoading, setIsLoading,] = useState(false);
   const [textarea, setTextarea] = useState('')
+  let users = Cookies.get("user");
+  let data_user = JSON.parse(users)
+  let user_id = data_user?.user?.user_id
   const handleShow = () => setShow(true);
+  const handlesaveShow = () => setShowsave(true)
+  const handleCloseSavle = () => {
+    setShowsave(false)
+  }
   const handleshowcoments = () => { setShowcoments(true) }
   const handlePrint = () => {
     window.print();
   };
-  const OnloadCommentsdata = () => {
-    axios.get(`/api/form-reply/Get-Reply-Status/${id}`).then((e) => {
 
-      if(e.length == 0){
-
-      }else{
-        setTextarea([...e?.data?.results][0].comments)
-      }
-
-    })
-  }
 
   const OnloadListData = () => {
-    axios.get(`/api/form/get-form/${id}`).then((data) => {
-      setformstatus([...data?.data?.dataForms][0].formstatus)
+    axios.get(`/api/req/find-Form-Id/${id}`).then((data) => {
+      // setformstatus([...data?.data?.dataForms][0].formstatus)
       setUsetable([...data?.data?.GetTable_position_one])
       setUsetable1([...data?.data?.GetTable_positions_two])
       setUsetable2([...data?.data?.GetTable_positions_three])
-      setSelectedImage([...data?.data?.GetImage_positions])
- 
-
+      // setUsetable3([...data?.data?.datatable3])
       if ([...data?.data?.GetTable_position_one].length == 0) {
 
       } else {
@@ -134,12 +125,7 @@ export default function EditForm() {
         setCountRow1([...data?.data?.GetTable_positions_two][0].countrow)
         setTablechidren1(JSON.parse([...data?.data?.GetTable_positions_two][0].body_table))
       }
-      // if([...data?.data?.datatable2].length == 0){
 
-      // }else{ 
-
-      // setTablechidren2(JSON.parse([...data?.data?.datatable2][0].body_table))
-      // }
       if ([...data?.data?.GetTable_positions_three].length == 0) {
 
       } else {
@@ -160,213 +146,33 @@ export default function EditForm() {
   const handleCloseComments = () => {
     setShowcoments(false)
   }
-  const handleCloseSavle = () => {
-    setShowsave(false)
-  }
-
-  const OnUpdate = () => {
-    setIsLoading(true);
-    let informdataUpdate = {
-      form_uid: id,
-      UpdateDataCheckbox: usecheckbox,
-      UpdateDataLable: uselable,
-      UpdateSizeForInput: usetextlist,
-      UpdatePositionsOne: usetable,
-      DataTablepositionOneupdate: tablechidren,
-      UpdatePositionsTwo: '',
-      DataTablepositiontwoupdate: '',
-      UpdatePositionsThree: '',
-      DataTablepositionThreeupdate: '',
-      InsertDataCheckbox: datacheckbox,
-      InsertDataLable: datalable,
-      InsertSizeForInput: listtext,
-      InsertPositionOne: datatable,
-      DataTablepositionOne: tables,
+  const onCreateConment = () => {
+    setIsLoading(true)
+    let datainform = {
+      req_id: id,
+      user_id: user_id,
+      comments: textarea,
+      comments_status: 5,
+      request_status: 5
     }
-    axios.post("/api/form/update-form", informdataUpdate).then((data) => {
-      OnloadListData()
-      setIsLoading(false);
 
+    console.log('datainform=', datainform)
+    axios.post('/api/request-reply/insert-request-reply', datainform).then((data) => {
+      setTextarea('')
+      setShow(false)
+      setIsLoading(false)
     }).catch((err) => {
       console.log(err)
     })
+
   }
 
-  const OnUpdateorformstatus = () => {
-    setIsLoading(true);
-    let informdataUpdate = {
-      form_uid: id,
-      UpdateDataCheckbox: usecheckbox,
-      UpdateDataLable: uselable,
-      UpdateSizeForInput: usetextlist,
-      UpdatePositionsOne: usetable,
-      DataTablepositionOneupdate: tablechidren,
-      UpdatePositionsTwo: '',
-      DataTablepositiontwoupdate: '',
-      UpdatePositionsThree: '',
-      DataTablepositionThreeupdate: '',
-      InsertDataCheckbox: datacheckbox,
-      InsertDataLable: datalable,
-      InsertSizeForInput: listtext,
-      InsertPositionOne: datatable,
-      DataTablepositionOne: tables,
-    }
-    axios.post("/api/form/update-form-draft", informdataUpdate).then((data) => {
-      OnloadListData()
-      setIsLoading(false);
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
 
-  const onCreateTable = () => {
-    if (datatable.length == 0) {
-      setShow(false)
-      setShowdeltable(true)
-      if (!tableRow || !tableColumn) return
-      const newItemtable = {
-        name: '',
-        positionX: 0,
-        positionY: 0,
-        width: 749,
-        height: 200,
-        countrow: tableRow,
-        type: 'table',
-      }
-      const cloneData = [...datatable]
-      cloneData.push(newItemtable)
-      setDatatable([...cloneData])
-      let item = [];
-      for (let i = 0; i < tableColumn; i++) {
-        let row = tableRow
-        let data;
-        if (row == 2) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 3) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 4) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 5) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
 
-        } else if (row == 6) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
 
-        } else if (row == 7) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
 
-        } else if (row == 8) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
 
-        } else if (row == 9) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
 
-        } else if (row == 10) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        }
-        item.push(data)
-      }
-      setTables(item)
-
-    } else if (datatable1.length == 0) {
-      setShow(false)
-
-      if (!tableRow || !tableColumn) return
-      const newItemtable1 = {
-        name: '',
-        positionX: 0,
-        positionY: 0,
-        width: 749,
-        height: 200,
-        type: 'table',
-        countrow: tableRow,
-      }
-      const cloneData = [...datatable1]
-      cloneData.push(newItemtable1)
-      setDatatable1([...cloneData])
-      let item1 = [];
-      for (let i = 0; i < tableColumn; i++) {
-        let row = tableRow
-        let data;
-        if (row == 2) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 3) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 4) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 5) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 6) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 7) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 8) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 9) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 10) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        }
-        item1.push(data)
-      }
-      setTables1(item1)
-    } else if (datatable2.length == 0) {
-      setShow(false)
-
-      if (!tableRow || !tableColumn) return
-      const newItemtable2 = {
-        name: '',
-        positionX: 0,
-        positionY: 0,
-        width: 749,
-        height: 200,
-        type: 'table',
-        countrow: tableRow,
-      }
-      const cloneData = [...datatable2]
-      cloneData.push(newItemtable2)
-      setDatatable2([...cloneData])
-      let item2 = [];
-      for (let i = 0; i < tableColumn; i++) {
-        let row = tableRow
-        let data;
-        if (row == 2) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 3) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 4) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 5) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 6) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 7) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 8) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 9) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 10) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        }
-        item2.push(data)
-      }
-      setTables2(item2)
-    }
-  }
 
   const Onclickrow = () => {
 
@@ -805,12 +611,16 @@ export default function EditForm() {
     setUsetextlist([...cloneDatas])
   }
 
+
+
   useEffect(() => {
     OnloadListData()
-    OnloadCommentsdata()
+
   }, [])
+
   return (
     <>
+
       <Modal show={showcoments} onHide={handleCloseComments} style={{ paddingTop: 50 }} size="lg">
         <Modal.Header closeButton>
           <span style={{ fontSize: 14, paddingTop: 10 }}>
@@ -827,132 +637,31 @@ export default function EditForm() {
             variant="outlined"
           />
         </div>
-
-      </Modal>
-      <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="sm">
-        <Modal.Header closeButton>
-          <span style={{ fontSize: 14, paddingTop: 10 }}>
-            Create table </span>
-        </Modal.Header>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
-          <div>
-            <small>Enter Row and Column</small>
-            <input
-              placeholder="Row"
-              value={tableRow}
-              onChange={e => setTableRow(e.target.value)}
-              style={{ width: 60, marginLeft: 10 }} />
-          </div>
-          <div style={{ marginRight: 10 }}>
-            <input value={tableColumn}
-              placeholder="Column"
-              onChange={e => setTableColumn(e.target.value)}
-              style={{ width: 60, marginLeft: 10 }} />
-          </div>
-        </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10 }}>
-          <button
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: 3,
-              paddingLeft: 20, paddingRight: 20,
-              backgroundColor: '#3f51b5',
-              color: '#fff'
-            }}
-            onClick={() => { onCreateTable() }}
-          >Create Table</button>
+          <Button
+            style={{ marginBottom: 20, marginRight: 35 }}
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            endIcon={<SendIcon>send</SendIcon>}
+            onClick={() => { onCreateConment() }}
+          >
+            {!isLoading ? (
+              <>
+                Send
+              </>
+            ) : (
+              <>
+                {
+                  <Spinner animation="border" variant="light" size='sm' />
+                }
+              </>)
+            }
+          </Button>
+
         </div>
 
       </Modal>
-      <Modal show={showsave} onHide={handleCloseSavle} style={{ paddingTop: 50 }} size="sm">
-        <Modal.Header closeButton>
-          <span style={{ fontSize: 14, paddingTop: 10 }}>
-            Save As</span>
-        </Modal.Header>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
-          <div>
-            <small>Form Name:</small>
-            <input
-              placeholder="Form Name"
-              value={saveAs}
-              onChange={e => setSaveAs(e.target.value)}
-              style={{ width: 200, marginLeft: 10 }} />
-          </div>
-
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10 }}>
-
-          <button
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: 3,
-              paddingLeft: 20, paddingRight: 20,
-              backgroundColor: '#3f51b5',
-              color: '#fff'
-            }}
-            onClick={() => { OnUpdate() }}
-          >Save</button>
-        </div>
-        <div style={{ height: 5 }}>
-
-        </div>
-      </Modal>
-      {/* <div style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',position:'fixed',top:65,left:264,right:25,zIndex:999,height:50,backgroundColor:'white'}}>
-              <div style={{backgroundColor:'#3f51b5', border: '1px solid #ccc',borderRadius:3,width:80,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnAddText()}}>
-                <InputIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Input</small>
-              </div>
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} 
-              onClick={()=>{handleShow()}}
-              >
-                <BorderAllIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Table</small>
-              </div>
-      
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewItem()}}>
-                <TextFormatIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',fontWeight:'bold'}} >Text</small>
-              </div>
-  
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewCheckbox()}}>
-                <CheckBoxIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >CheckBox</small>
-              </div>
-                 {
-                  formstatus == 0 ? (
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdate()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Save</small>
-                    </div>
-                  </>
-                  ):(
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdateorformstatus()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Savef</small>
-                    </div>
-                  
-                  </>)
-                 }
-           
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{handleshowcoments()}}>
-                <CommentIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >comments</small>
-              </div>
-              <ReactToPrint 
-              trigger={()=>
-                <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} >
-                <PrintIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >Print</small>
-    
-              </div>
-              }
-              content={()=>componentRef}
-
-              />
-        
-      </div> */}
 
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'fixed', top: 65, left: 264, right: 25, zIndex: 0, height: 50, backgroundColor: '#ebedef' }}>
         <div>
@@ -969,122 +678,12 @@ export default function EditForm() {
             </Typography>
 
           </Breadcrumbs>
+
         </div>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }}>
-
-            <Button
-
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<InputIcon />}
-              onClick={() => { OnAddText() }}
-            >
-              Input
-            </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }}
-            onClick={() => { handleShow() }}
-          >
-
-            <Button
-
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<BorderAllIcon />}
-              onClick={() => { handleShow() }}
-            >
-              Table
-            </Button>
-          </div>
-
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 30 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<TextFormatIcon />}
-              onClick={() => { onAddNewItem() }}
-            >
-              Text
-            </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 70, cursor: 'pointer', height: 30, marginTop: 10 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<CheckBoxIcon />}
-              onClick={() => { onAddNewCheckbox() }}
-            >
-              CheckBox
-            </Button>
-
-          </div>
-
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }}
-          >
-            {formstatus == 0 ? (<>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                className={classes.button}
-                startIcon={<SaveIcon />}
-                onClick={() => { OnUpdate() }}
-              >
-                {!isLoading ? (
-                  <>
-                    Save
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="light" size='sm' />
-                    }
-                  </>)
-                }
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
 
 
-              </Button>
-
-            </>) : (<>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                className={classes.button}
-                startIcon={<SaveIcon />}
-                onClick={() => { OnUpdateorformstatus() }}
-              >
-                {!isLoading ? (
-                  <>
-                    Save
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="light" size='sm' />
-                    }
-                  </>)
-                }
-
-
-
-              </Button>
-
-            </>)
-
-            }
-
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 70, cursor: 'pointer', height: 30, marginTop: 10 }}>
+          <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 100, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 20 }} onClick={() => { handleshowcoments() }}>
             <Button
               variant="contained"
               color="primary"
@@ -1093,30 +692,13 @@ export default function EditForm() {
               startIcon={<CommentIcon />}
               onClick={() => { handleshowcoments() }}
             >
-              Comment
+              comments
             </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 37, cursor: 'pointer', height: 30, marginTop: 10 }}
-
-          >
-            <label htmlFor="contained-button-file" style={{ position: 'absolute' }}>
-              <Button variant="contained" color="primary" size="small" component="span">
-                Upload
-              </Button>
-            </label>
-            <input
-              style={{ color: 'white', width: 10, marginLeft: 30 }}
-              accept="image/*"
-              className={classes.input}
-              id="contained-button-file"
-              multiple
-              type="file"
-            />
-
           </div>
           <ReactToPrint
             trigger={() =>
               <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }} >
+
                 <Button
                   variant="contained"
                   color="primary"
@@ -1131,11 +713,11 @@ export default function EditForm() {
               </div>
             }
             content={() => componentRef}
+
           />
+
         </div>
-
       </div>
-
       <div style={{ height: 20 }}>
       </div>
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', backgroundColor: '#ebedef', marginTop: 10 }}  >
@@ -1372,8 +954,6 @@ export default function EditForm() {
               )
             })
           }
-
-
           {
             uselable && uselable.map((el, index) => {
               return (
@@ -1386,7 +966,7 @@ export default function EditForm() {
                   }}
                   onDragStop={(e, d) => onDragStoplableupdate(e, d, index)}
                   onClick={() => onClickOnElementupdate(index)}
-                  style={{ display: 'flex', justifyContent: 'flex-start' }}
+                  style={{ display: 'flex', justifyContent: 'flex-start', backgroundColor: 'red' }}
                 >
 
                   <small style={{ fontSize: el.font, fontWeight: el.fontWeight }}>{el.name}</small>
@@ -1435,7 +1015,6 @@ export default function EditForm() {
                   </div>
                 </Rnd>
               )
-
             })
 
           }
@@ -1502,23 +1081,7 @@ export default function EditForm() {
                     e={e}
                   />
                 </Rnd>
-              )
-            })
-          }
-          {
-            selectedImage && selectedImage.map((e, index) => {
-              return (
-                <Rnd
-                  default={{
-                    x: e.positionX,
-                    y: e.positionY,
-                  }}
-                  // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
-                  // onClick={() => { OnClickCheckimage(index) }}
-                >
-                  {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
-                  <img src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
-                </Rnd>
+
               )
             })
           }
@@ -1719,6 +1282,26 @@ export default function EditForm() {
 
             })
           }
+          {
+            usetextlist && usetextlist.map((e, index) => {
+              return (
+                < Rnd
+                  default={{
+                    x: e.positionX,
+                    y: e.positionY,
+                  }}
+                  onDragStop={(e, d) => onDragStopinputupdate(e, d, index)}
+                >
+                  <RowComponent
+                    index={index}
+                    changeText={changeText}
+                    e={e}
+                    Onclicktextlist={Onclicktextlist}
+                  />
+                </Rnd>
+              )
+            })
+          }
         </div>
 
 
@@ -1726,10 +1309,7 @@ export default function EditForm() {
 
     </>
   )
-
-
 }
-
 function RowComponent({ changeText, Onclicktextlist, e, index }) {
   return (
     <>

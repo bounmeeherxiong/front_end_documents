@@ -2,28 +2,24 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Rnd } from 'react-rnd';
-import TextFormatIcon from '@material-ui/icons/TextFormat';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import BorderAllIcon from '@material-ui/icons/BorderAll';
+import TextField from '@material-ui/core/TextField';
 import InputIcon from '@material-ui/icons/Input';
-import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import CommentIcon from '@material-ui/icons/Comment';
-import SendIcon from '@material-ui/icons/Send';
 import AddIcon from '@material-ui/icons/Add';
 import PrintIcon from '@material-ui/icons/Print';
-import { makeStyles } from '@material-ui/core/styles';
 import { Modal } from "react-bootstrap";
 import ReactToPrint from "react-to-print";
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
+import Cookies from 'js-cookie';
+import { makeStyles } from '@material-ui/core/styles';
+import SendIcon from '@material-ui/icons/Send';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
+import Button from '@material-ui/core/Button';
 import { Spinner } from "react-bootstrap";
-
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
@@ -32,10 +28,9 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-export default function EditForm() {
+export const UserCheckDoc_no = () => {
   const classes = useStyles();
   let componentRef = useRef(null)
-  const [isLoading, setIsLoading,] = useState(false);
   const { id } = useParams();
   const [datatable, setDatatable] = useState([])
   const [datatable1, setDatatable1] = useState([])
@@ -52,6 +47,7 @@ export default function EditForm() {
   const [countRow1, setCountRow1] = useState('')
   const [countRow2, setCountRow2] = useState('')
   const [countRow3, setCountRow3] = useState('')
+  const [isLoading, setIsLoading,] = useState(false);
   const [index1, setIndex1] = useState('')
   const [index2, setIndex2] = useState('')
   const [bold, setBold] = useState(false)
@@ -80,7 +76,6 @@ export default function EditForm() {
   const [inputValues3, setInputValues3] = useState('')
   const [inputValues4, setInputValues4] = useState('')
   const [inputValues5, setInputValues5] = useState('')
-  const [selectedImage, setSelectedImage] = useState([])
   const [showsave, setShowsave] = useState(false);
   const [widthsize, setWidthsize] = useState('')
   const [widthsize1, setWidthsize1] = useState('')
@@ -93,64 +88,70 @@ export default function EditForm() {
   const [tables2, setTables2] = useState([[]])
   const [tables3, setTables3] = useState([[]])
   const [tables4, setTables4] = useState([[]])
+  const [countnumber, setcountnumber] = useState('')
   const [saveAs, setSaveAs] = useState('')
   const [textarea, setTextarea] = useState('')
+  let users = Cookies.get("user");
+  let data_user = JSON.parse(users)
+  let user_id = data_user?.user?.user_id
   const handleShow = () => setShow(true);
+  const handlesaveShow = () => setShowsave(true)
+  const handleCloseSavle = () => {
+    setShowsave(false)
+  }
   const handleshowcoments = () => { setShowcoments(true) }
   const handlePrint = () => {
     window.print();
   };
-  const OnloadCommentsdata = () => {
-    axios.get(`/api/form-reply/Get-Reply-Status/${id}`).then((e) => {
+  const OnloadNumner = () => {
+    axios.get('/api/no/get-auto-number').then((data) => {
+      setcountnumber(data?.data?.data)
 
-      if(e.length == 0){
-
-      }else{
-        setTextarea([...e?.data?.results][0].comments)
-      }
-
+    }).catch((err) => {
+      console.log(err)
     })
   }
-
+  // /api/no/find-Request-By-Id
   const OnloadListData = () => {
-    axios.get(`/api/form/get-form/${id}`).then((data) => {
-      setformstatus([...data?.data?.dataForms][0].formstatus)
+      axios.get(`/api/req/find-Form-Id/${id}`).then((data) => {
       setUsetable([...data?.data?.GetTable_position_one])
       setUsetable1([...data?.data?.GetTable_positions_two])
       setUsetable2([...data?.data?.GetTable_positions_three])
-      setSelectedImage([...data?.data?.GetImage_positions])
- 
-
       if ([...data?.data?.GetTable_position_one].length == 0) {
-
       } else {
         setCountRow([...data?.data?.GetTable_position_one][0].countrow)
         setTablechidren(JSON.parse([...data?.data?.GetTable_position_one][0].body_table))
       }
-
       if ([...data?.data?.GetTable_positions_two].length == 0) {
 
       } else {
         setCountRow1([...data?.data?.GetTable_positions_two][0].countrow)
         setTablechidren1(JSON.parse([...data?.data?.GetTable_positions_two][0].body_table))
       }
-      // if([...data?.data?.datatable2].length == 0){
-
-      // }else{ 
-
-      // setTablechidren2(JSON.parse([...data?.data?.datatable2][0].body_table))
-      // }
       if ([...data?.data?.GetTable_positions_three].length == 0) {
 
       } else {
         setCountRow3([...data?.data?.GetTable_positions_three][0].countRow)
         setTablechidren3(JSON.parse([...data?.data?.GetTable_positions_three][0].body_table))
       }
-
       setUselable([...data?.data?.GetTable_label])
       setUsecheckbox([...data?.data?.GetTable_checkbox])
       setUsetextlist([...data?.data?.resuGetTable_sizeforinputlts])
     }).catch((err) => {
+      console.log(err)
+    })
+  }
+  const InsertComment=()=>{
+    let dataInFormations={
+      request_document_no_id:'0fcfb7ef-d21e-4f9f-837f-43aabe8a42db',
+      req_id:id,
+      comments:textarea,
+      employee_id:user_id
+    }
+    axios.post('/api/commemt/insert-comment',dataInFormations).then((data)=>{
+      setShowcoments(false)
+      OnloadListData()
+    }).catch((err)=>{
       console.log(err)
     })
   }
@@ -160,14 +161,10 @@ export default function EditForm() {
   const handleCloseComments = () => {
     setShowcoments(false)
   }
-  const handleCloseSavle = () => {
-    setShowsave(false)
-  }
-
   const OnUpdate = () => {
     setIsLoading(true);
     let informdataUpdate = {
-      form_uid: id,
+      req_uid: id,
       UpdateDataCheckbox: usecheckbox,
       UpdateDataLable: uselable,
       UpdateSizeForInput: usetextlist,
@@ -177,48 +174,40 @@ export default function EditForm() {
       DataTablepositiontwoupdate: '',
       UpdatePositionsThree: '',
       DataTablepositionThreeupdate: '',
-      InsertDataCheckbox: datacheckbox,
-      InsertDataLable: datalable,
-      InsertSizeForInput: listtext,
-      InsertPositionOne: datatable,
-      DataTablepositionOne: tables,
+      doc_no: countnumber
     }
-    axios.post("/api/form/update-form", informdataUpdate).then((data) => {
+    axios.post("/api/no/update-request-and-docno", informdataUpdate).then((data) => {
       OnloadListData()
       setIsLoading(false);
-
     }).catch((err) => {
       console.log(err)
     })
   }
-
-  const OnUpdateorformstatus = () => {
+  const OnCreate = () => {
     setIsLoading(true);
-    let informdataUpdate = {
-      form_uid: id,
-      UpdateDataCheckbox: usecheckbox,
-      UpdateDataLable: uselable,
-      UpdateSizeForInput: usetextlist,
-      UpdatePositionsOne: usetable,
-      DataTablepositionOneupdate: tablechidren,
-      UpdatePositionsTwo: '',
-      DataTablepositiontwoupdate: '',
-      UpdatePositionsThree: '',
-      DataTablepositionThreeupdate: '',
-      InsertDataCheckbox: datacheckbox,
-      InsertDataLable: datalable,
-      InsertSizeForInput: listtext,
-      InsertPositionOne: datatable,
-      DataTablepositionOne: tables,
+    setShowsave(false)
+    let informdata = {
+      form_id: id,
+      title: saveAs,
+      req_status: 0,
+      doc_no: 0,
+      created_by: user_id,
+      InsertDataCheckbox: usecheckbox,
+      InsertDataLable: uselable,
+      InsertPositionOne: usetable,
+      DataTablepositionOne: tablechidren,
+      InsertPositionsTwo: '',
+      DataTablepositiontwo: '',
+      InsertPositionsThree: '',
+      DataTablepositionThree: '',
+      InsertSizeForInput: usetextlist
     }
-    axios.post("/api/form/update-form-draft", informdataUpdate).then((data) => {
-      OnloadListData()
+    axios.post("/api/req/insert-request-form", informdata).then((data) => {
       setIsLoading(false);
     }).catch((err) => {
       console.log(err)
     })
   }
-
   const onCreateTable = () => {
     if (datatable.length == 0) {
       setShow(false)
@@ -263,7 +252,6 @@ export default function EditForm() {
 
         } else if (row == 10) {
           data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
         }
         item.push(data)
       }
@@ -757,7 +745,6 @@ export default function EditForm() {
     // setCheckboxvalue('')
   }
 
-
   const onAddNewItem = () => {
 
     setDatalable([...datalable, { name: 'Text', positionX: 0, positionY: 0, width: 0, height: 0, font: '20px', fontWeight: '', type: 'lable' }])
@@ -804,13 +791,15 @@ export default function EditForm() {
     cloneDatas[index] = cloneData
     setUsetextlist([...cloneDatas])
   }
-
   useEffect(() => {
     OnloadListData()
-    OnloadCommentsdata()
+    OnloadNumner()
+
   }, [])
+
   return (
     <>
+
       <Modal show={showcoments} onHide={handleCloseComments} style={{ paddingTop: 50 }} size="lg">
         <Modal.Header closeButton>
           <span style={{ fontSize: 14, paddingTop: 10 }}>
@@ -827,132 +816,21 @@ export default function EditForm() {
             variant="outlined"
           />
         </div>
-
-      </Modal>
-      <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="sm">
-        <Modal.Header closeButton>
-          <span style={{ fontSize: 14, paddingTop: 10 }}>
-            Create table </span>
-        </Modal.Header>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
-          <div>
-            <small>Enter Row and Column</small>
-            <input
-              placeholder="Row"
-              value={tableRow}
-              onChange={e => setTableRow(e.target.value)}
-              style={{ width: 60, marginLeft: 10 }} />
-          </div>
-          <div style={{ marginRight: 10 }}>
-            <input value={tableColumn}
-              placeholder="Column"
-              onChange={e => setTableColumn(e.target.value)}
-              style={{ width: 60, marginLeft: 10 }} />
-          </div>
-        </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10 }}>
-          <button
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: 3,
-              paddingLeft: 20, paddingRight: 20,
-              backgroundColor: '#3f51b5',
-              color: '#fff'
-            }}
-            onClick={() => { onCreateTable() }}
-          >Create Table</button>
-        </div>
-
-      </Modal>
-      <Modal show={showsave} onHide={handleCloseSavle} style={{ paddingTop: 50 }} size="sm">
-        <Modal.Header closeButton>
-          <span style={{ fontSize: 14, paddingTop: 10 }}>
-            Save As</span>
-        </Modal.Header>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
-          <div>
-            <small>Form Name:</small>
-            <input
-              placeholder="Form Name"
-              value={saveAs}
-              onChange={e => setSaveAs(e.target.value)}
-              style={{ width: 200, marginLeft: 10 }} />
-          </div>
-
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10 }}>
-
-          <button
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: 3,
-              paddingLeft: 20, paddingRight: 20,
-              backgroundColor: '#3f51b5',
-              color: '#fff'
-            }}
-            onClick={() => { OnUpdate() }}
-          >Save</button>
-        </div>
-        <div style={{ height: 5 }}>
+          <Button
+            style={{ marginBottom: 20, marginRight: 35 }}
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            endIcon={<SendIcon>send</SendIcon>}
+            onClick={()=>{InsertComment()}}
+          >
+            Send
+          </Button>
 
         </div>
       </Modal>
-      {/* <div style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',position:'fixed',top:65,left:264,right:25,zIndex:999,height:50,backgroundColor:'white'}}>
-              <div style={{backgroundColor:'#3f51b5', border: '1px solid #ccc',borderRadius:3,width:80,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnAddText()}}>
-                <InputIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Input</small>
-              </div>
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} 
-              onClick={()=>{handleShow()}}
-              >
-                <BorderAllIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Table</small>
-              </div>
-      
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewItem()}}>
-                <TextFormatIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',fontWeight:'bold'}} >Text</small>
-              </div>
-  
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewCheckbox()}}>
-                <CheckBoxIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >CheckBox</small>
-              </div>
-                 {
-                  formstatus == 0 ? (
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdate()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Save</small>
-                    </div>
-                  </>
-                  ):(
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdateorformstatus()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Savef</small>
-                    </div>
-                  
-                  </>)
-                 }
-           
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{handleshowcoments()}}>
-                <CommentIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >comments</small>
-              </div>
-              <ReactToPrint 
-              trigger={()=>
-                <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} >
-                <PrintIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >Print</small>
-    
-              </div>
-              }
-              content={()=>componentRef}
 
-              />
-        
-      </div> */}
 
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'fixed', top: 65, left: 264, right: 25, zIndex: 0, height: 50, backgroundColor: '#ebedef' }}>
         <div>
@@ -971,120 +849,31 @@ export default function EditForm() {
           </Breadcrumbs>
         </div>
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }}>
-
+          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }} onClick={() => { OnUpdate() }}>
             <Button
-
               variant="contained"
               color="primary"
               size="small"
               className={classes.button}
               startIcon={<InputIcon />}
-              onClick={() => { OnAddText() }}
+              onClick={() => { OnUpdate() }}
             >
-              Input
-            </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }}
-            onClick={() => { handleShow() }}
-          >
+              {!isLoading ? (
+                <>
+                  Save
+                </>
+              ) : (
+                <>
+                  {
+                    <Spinner animation="border" variant="light" size='sm' />
+                  }
+                </>)
+              }
 
-            <Button
-
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<BorderAllIcon />}
-              onClick={() => { handleShow() }}
-            >
-              Table
             </Button>
           </div>
 
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 30 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<TextFormatIcon />}
-              onClick={() => { onAddNewItem() }}
-            >
-              Text
-            </Button>
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 70, cursor: 'pointer', height: 30, marginTop: 10 }}>
-            <Button
-              variant="contained"
-              color="primary"
-              size="small"
-              className={classes.button}
-              startIcon={<CheckBoxIcon />}
-              onClick={() => { onAddNewCheckbox() }}
-            >
-              CheckBox
-            </Button>
-
-          </div>
-
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }}
-          >
-            {formstatus == 0 ? (<>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                className={classes.button}
-                startIcon={<SaveIcon />}
-                onClick={() => { OnUpdate() }}
-              >
-                {!isLoading ? (
-                  <>
-                    Save
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="light" size='sm' />
-                    }
-                  </>)
-                }
-
-
-              </Button>
-
-            </>) : (<>
-              <Button
-                variant="contained"
-                color="primary"
-                size="small"
-                className={classes.button}
-                startIcon={<SaveIcon />}
-                onClick={() => { OnUpdateorformstatus() }}
-              >
-                {!isLoading ? (
-                  <>
-                    Save
-                  </>
-                ) : (
-                  <>
-                    {
-                      <Spinner animation="border" variant="light" size='sm' />
-                    }
-                  </>)
-                }
-
-
-
-              </Button>
-
-            </>)
-
-            }
-
-          </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 70, cursor: 'pointer', height: 30, marginTop: 10 }}>
+          <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 100, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 20 }} onClick={() => { handleshowcoments() }}>
             <Button
               variant="contained"
               color="primary"
@@ -1093,26 +882,11 @@ export default function EditForm() {
               startIcon={<CommentIcon />}
               onClick={() => { handleshowcoments() }}
             >
-              Comment
+              comments
             </Button>
           </div>
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 37, cursor: 'pointer', height: 30, marginTop: 10 }}
-
-          >
-            <label htmlFor="contained-button-file" style={{ position: 'absolute' }}>
-              <Button variant="contained" color="primary" size="small" component="span">
-                Upload
-              </Button>
-            </label>
-            <input
-              style={{ color: 'white', width: 10, marginLeft: 30 }}
-              accept="image/*"
-              className={classes.input}
-              id="contained-button-file"
-              multiple
-              type="file"
-            />
-
+          <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 100, marginLeft: 10, cursor: 'pointer', height: 33, marginTop: 10,display:'flex',justifyContent:'center',justifyItems:'center' }}>
+            <small style={{ color: '#fff',fontWeight:'bold',fontSize:20 }}  >{countnumber}</small>
           </div>
           <ReactToPrint
             trigger={() =>
@@ -1123,19 +897,15 @@ export default function EditForm() {
                   size="small"
                   className={classes.button}
                   startIcon={<PrintIcon />}
-
                 >
                   Print
                 </Button>
-
               </div>
             }
             content={() => componentRef}
           />
         </div>
-
       </div>
-
       <div style={{ height: 20 }}>
       </div>
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', backgroundColor: '#ebedef', marginTop: 10 }}  >
@@ -1211,7 +981,6 @@ export default function EditForm() {
                                     return (
                                       <>
                                         <td key={index2} style={{ border: '1px solid gray', width: `${data.width}px` }} colSpan={data.cols} rowSpan={data.rows}>
-
                                           <textarea value={data?.name}
                                             onChange={(e) => { changeTexttable(e.target.value, 'name', index1, index2) }}
                                             onClick={() => { OnclickTablefirst(index1, index2) }}
@@ -1240,7 +1009,6 @@ export default function EditForm() {
                     default={{
                       x: el.positionX,
                       y: el.positionY,
-
                     }}
                     onDragStop={(e, d) => onDragStoptable1(e, d, index)}
                     onClick={() => { Onclicktable1(index) }}
@@ -1279,7 +1047,6 @@ export default function EditForm() {
           }
           {
             usetable2 && usetable2.map((el, index) => {
-
               return (
                 <div key={index}>
                   <Rnd
@@ -1292,8 +1059,6 @@ export default function EditForm() {
                   // onClick={()=>{Onclicktable(index)}}
 
                   >
-
-
                     <table style={{ border: '1px solid gray' }}>
                       {
                         tablechidren2 && tablechidren2.map((item, index1) => {
@@ -1372,8 +1137,6 @@ export default function EditForm() {
               )
             })
           }
-
-
           {
             uselable && uselable.map((el, index) => {
               return (
@@ -1502,23 +1265,7 @@ export default function EditForm() {
                     e={e}
                   />
                 </Rnd>
-              )
-            })
-          }
-          {
-            selectedImage && selectedImage.map((e, index) => {
-              return (
-                <Rnd
-                  default={{
-                    x: e.positionX,
-                    y: e.positionY,
-                  }}
-                  // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
-                  // onClick={() => { OnClickCheckimage(index) }}
-                >
-                  {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
-                  <img src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
-                </Rnd>
+
               )
             })
           }
@@ -1726,10 +1473,7 @@ export default function EditForm() {
 
     </>
   )
-
-
 }
-
 function RowComponent({ changeText, Onclicktextlist, e, index }) {
   return (
     <>
@@ -1939,8 +1683,6 @@ function CompoentStyleForLable({ editlable, fontSize, changeLable, getindex, cha
   )
 }
 
-
-
 function CompoentStyleForCheckBox({ editcheckboxvalues, changeCheckbox, getindex, deletecheckbox }) {
   return (
     <>
@@ -1963,4 +1705,3 @@ function CompoentStyleForCheckBox({ editcheckboxvalues, changeCheckbox, getindex
     </>
   )
 }
-
