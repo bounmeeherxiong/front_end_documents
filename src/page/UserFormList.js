@@ -420,7 +420,7 @@ export default function UserFormList() {
                                     data?.req_status == 2 ? (
                                       <>
                                         <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <div style={{ backgroundColor: '#f9b115', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
                                             <small style={{ color: 'white' }}>In Progress</small>
                                           </div>
 

@@ -94,7 +94,6 @@ export const ListFormFromRequest = () => {
     axios.get(`/api/req-setting/find-Request-Setting-By-Approver/${user_id}`).then((data) => {
       setDatalist([...data?.data?.results])
       setLevels([...data?.data?.results][0].levels)
-      console.log([...data?.data?.results][0].levels)
     }).catch((err) => {
       console.log(err)
     })
@@ -442,7 +441,7 @@ export const ListFormFromRequest = () => {
                     <TableBody>
                       {
                         datalist && datalist.map((item, index) => {
-                          console.log("mmmmmmmmmmmm=", item)
+                         
 
                           return (
                             <>
@@ -480,7 +479,7 @@ export const ListFormFromRequest = () => {
                                   item?.request_status == 3 ? (
                                     <>
                                       <TableCell style={{ cursor: 'pointer' }}>
-                                        <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} >
+                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} >
                                           <small style={{ color: 'white' }}>Approved</small>
                                         </div>
 

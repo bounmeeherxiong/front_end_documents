@@ -130,7 +130,6 @@ export default function Home(props) {
   }
   const OnloadStatus = () => {
     axios.get(`/api/form/get-role/${user_id}`).then((data) => {
-  
       if (data.length == 0) {
 
       } else {
@@ -171,19 +170,16 @@ export default function Home(props) {
       console.log(err)
     })
   }
-  const onloadapprover = () => {
-    axios.get(`/api/req-setting/find-Request-Setting-By-Approver/${user_id}`).then((data) => {
-
-
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
+  // const onloadapprover = () => {
+  //   axios.get(`/api/req-setting/find-Request-Setting-By-Approver/${user_id}`).then((data) => {
+  //   }).catch((err) => {
+  //     console.log(err)
+  //   })
+  // }
   useEffect(() => {
     OnloadListViewrequest()
     onloadDepartment();
     OnloadStatus();
-    onloadapprover();
   }, [])
   return (
     <>
@@ -326,23 +322,6 @@ export default function Home(props) {
 
               </List>
             </Collapse>
-            {/* {
-              role_id.length == 0 ? (<>
-                <ListItem button onClick={() => Navigate("/UserFormList")}>
-                  <ListItemIcon>
-                    <BarChartIcon />
-                  </ListItemIcon>
-                  <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-                    <small style={{ marginLeft: -30 }}>Form</small>
-                    <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}>({count})</small>
-
-                  </div>
-
-                  <ListItemText />
-                </ListItem>
-
-              </>) : null
-            } */}
             <ListItem button onClick={() => Navigate("/UserFormList")}>
               <ListItemIcon>
                 <BarChartIcon />
@@ -350,35 +329,16 @@ export default function Home(props) {
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
                 <small style={{ marginLeft: -30 }}>Request</small>
                 <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}>()</small>
-
               </div>
-
               <ListItemText />
             </ListItem>
-            {/* {
-              role_id == 2 ? (<>
-                <ListItem button onClick={() => Navigate("/RequestForm")}>
-                  <ListItemIcon>
-                    <BarChartIcon />
-                  </ListItemIcon>
-                  <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
-                    <small style={{ marginLeft: -30 }}>Request Form</small>
-                    <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}>({count})</small>
-
-                  </div>
-
-                  <ListItemText />
-                </ListItem>
-
-              </>) : null
-            } */}
             <ListItem button onClick={() => Navigate("/RequestForm")}>
               <ListItemIcon>
                 <BarChartIcon />
               </ListItemIcon>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
                 <small style={{ marginLeft: -30 }}>Created Form Request</small>
-                <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}>({count})</small>
+                <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}>()</small>
               </div>
               <ListItemText />
             </ListItem>
@@ -388,7 +348,7 @@ export default function Home(props) {
               </ListItemIcon>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
                 <small style={{ marginLeft: -30 }}>Document No</small>
-                <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}></small>
+                <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}>()</small>
               </div>
               <ListItemText />
             </ListItem>
@@ -398,7 +358,7 @@ export default function Home(props) {
               </ListItemIcon>
               <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
                 <small style={{ marginLeft: -30 }}>Approved Form</small>
-                <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}></small>
+                <small style={{ color: 'red', fontWeight: 'bold', marginLeft: 5 }}>()</small>
               </div>
               <ListItemText />
             </ListItem>
