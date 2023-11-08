@@ -53,14 +53,18 @@ export const AddEmployee = () => {
     const handleShow = () => setShow(true);
     const Onsetting = (e) => {
         let infordata = {
-            employee_id: e
+            employee_id: e,
         }
         axios.post('/api/setting/all-employee-in-department', infordata).then((data) => {
             setListdata([...data?.data?.results])
         }).catch((err) => {
             console.log(err)
         })
+        // axios.post('/api/no/create-setting-doc',infordata).then((data)=>{
 
+        // }).catch((err)=>{
+        //     console.log(err)
+        // })
     }
     const OnOptions = (e) => {
         setEmployee_id(e)
@@ -75,9 +79,10 @@ export const AddEmployee = () => {
         setIsLoading(true);
         let infordata = {
             employee_id: employee_id,
-            created_by: user_id
+            status: 1
         }
-        axios.post('/api/no/Insert-doc-role', infordata).then((data) => {
+        console.log("infordata=",)
+        axios.post('/api/no/create-setting-doc', infordata).then((data) => {
             setShow(false);
             OnloadUserRole();
             setEmployee_id('')

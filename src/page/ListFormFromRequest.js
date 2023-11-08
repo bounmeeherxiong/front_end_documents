@@ -30,6 +30,7 @@ import { withStyles } from '@material-ui/core/styles';
 import SaveIcon from '@material-ui/icons/Save';
 import { Spinner } from "react-bootstrap";
 import moment from "moment";
+import { LoginContext } from "../page/contexts/LoginContext";
 const GreenCheckbox = withStyles({
   root: {
     color: green[400],
@@ -57,12 +58,7 @@ export const ListFormFromRequest = () => {
 
   const classes = useStyles();
   const Navigate = useNavigate();
-  const [state, setState] = React.useState({
-    checkedA: true,
-    checkedB: true,
-    checkedF: true,
-    checkedG: true,
-  });
+  const { setId, setShowUserCheckFormScreen } = useContext(LoginContext)
   const [isLoading, setIsLoading,] = useState(false);
   const [show, setShow] = useState(false);
   const [form_uid, setForm_uid] = useState('')
@@ -193,11 +189,11 @@ export const ListFormFromRequest = () => {
     setEmployee_name([...list][0].employee_name)
   }
   const OnViewForm = (id) => {
-    Navigate(`/Viewdetailform/${id}`);
+    // Navigate(`/Viewdetailform/${id}`);
+    setId(id)
+    setShowUserCheckFormScreen(true)
   }
-  const onEditform = (id) => {
-    Navigate(`/EditForm/${id}`)
-  }
+
   const handlechange = e => {
     if (e.target.checked) {
       console.log(e.target.checked)
@@ -441,7 +437,7 @@ export const ListFormFromRequest = () => {
                     <TableBody>
                       {
                         datalist && datalist.map((item, index) => {
-                         
+
 
                           return (
                             <>
@@ -468,7 +464,7 @@ export const ListFormFromRequest = () => {
                                   item?.request_status == 2 ? (
                                     <>
                                       <TableCell style={{ cursor: 'pointer' }}>
-                                        <div style={{ backgroundColor: '#f9b115', borderRadius: 5, display: 'flex', justifyContent:'center', width: 70 }} >
+                                        <div style={{ backgroundColor: '#f9b115', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} >
                                           <small style={{ color: 'white' }}>In Progress</small>
                                         </div>
 
@@ -566,9 +562,156 @@ export const ListFormFromRequest = () => {
           </>)
         }
 
+      </div>
+      <div>
+        <div style={{ maxHeight: 500, overflowY: 'scroll', overflowX: 'hidden' }}>
+          <table style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed' }}>
+            <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+              <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>A</th>
+              <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>B</th>
+              <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>C</th>
+              <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>D</th>
+              <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>E</th>
+              <th style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>F</th>
 
 
+            </thead>
+            <tbody>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              v
+              <tr>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+                <td style={{ border: '1px solid #ddd', padding: 8, textAlign: 'left', whiteSpace: 'nowrap' }}>sdfasdfadsafd</td>
+              </tr>
+              
 
+
+            </tbody>
+          </table>
+        </div>
       </div>
 
 

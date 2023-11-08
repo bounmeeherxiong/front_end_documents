@@ -17,7 +17,6 @@ import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
-import { Spinner } from "react-bootstrap";
 
 import Cookies from 'js-cookie';
 const useStyles = makeStyles((theme) => ({
@@ -176,23 +175,36 @@ export default function ViewForm() {
   }
 
   const onCreate = () => {
-    let datainform = {
-      form_id: id,
-      approver: user_id,
-      comments: textarea,
-      formstatus: 5,
-      comments_status: 5
+    // let datainform = {
+    //   form_id: id,
+    //   approver: user_id,
+    //   comments: textarea,
+    //   formstatus: 5,
+    //   comments_status: 5
+    // }
+    // axios.post('/api/form-reply/insert-reply', datainform).then((data) => {
+    //   console.log(data)
+    //   setTextarea('')
+    //   setShow(false)
+
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
+    let datainform={
+      form_id:id,
+      comments:textarea
 
     }
-    axios.post('/api/form-reply/insert-reply', datainform).then((data) => {
-      console.log(data)
-      setTextarea('')
-      setShow(false)
+    console.log("datainform=",datainform)
+    // axios.post('/api/setting/update-To-Draft-Status', datainform).then((data) => {
+    //   console.log(data)
+    //   setTextarea('')
+    //   setShow(false)
 
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
 
-    }).catch((err) => {
-      console.log(err)
-    })
 
   }
 
@@ -687,10 +699,6 @@ export default function ViewForm() {
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
 
           <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 100, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }} >
-            {/* <CommentIcon style={{ color: '#fff' }} />
-          <small style={{ color: '#fff', fontWeight: 'bold' }} >Comment</small>
-          
-        */}
             <Button
 
               variant="contained"
@@ -708,8 +716,7 @@ export default function ViewForm() {
           <ReactToPrint
             trigger={() =>
               <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }} >
-                {/* <PrintIcon style={{ color: '#fff' }} />
-                <small style={{ color: '#fff' }}  >Print</small> */}
+           
                 <Button
 
                   variant="contained"
@@ -1090,10 +1097,8 @@ export default function ViewForm() {
                     x: e.positionX,
                     y: e.positionY,
                   }}
-                // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
-                // onClick={() => { OnClickCheckimage(index) }}
+
                 >
-                  {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
                   <img key={index} src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
                 </Rnd>
               )
@@ -1246,6 +1251,9 @@ export default function ViewForm() {
             }
 
           </div>
+        </div>
+        <div>
+          <small></small>
         </div>
       </div>
       {/* ====================================funcionst printer====================== */}

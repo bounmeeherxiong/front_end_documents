@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState} from "react";
 import { Rnd } from 'react-rnd';
 import CheckBoxIcon from '@material-ui/icons/CheckBox';
 import TextFormatIcon from '@material-ui/icons/TextFormat';
@@ -8,6 +8,7 @@ import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Cookies from 'js-cookie';
 import axios from "axios";
+import PrintIcon from '@material-ui/icons/Print';
 import { Modal } from "react-bootstrap";
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
@@ -17,6 +18,8 @@ import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
+import { Spinner } from "react-bootstrap";
+import ReactToPrint from "react-to-print";
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
@@ -28,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function CreateForm() {
   const classes = useStyles();
+  let componentRef = useRef(null)
   const [tableRow, setTableRow] = useState('')
   const [showdeltable, setShowdeltable] = useState(true)
   const [showdeltable1, setShowdeltable1] = useState(false)
@@ -73,10 +77,12 @@ export default function CreateForm() {
   const [ing_width, setIng_width] = useState('')
   const [ing_heigh, setIng_heigh] = useState('')
   const [pictureUrl, setPictureUrl] = useState(null);
+  const [isLoading, setIsLoading,] = useState(false);
   const [file, setFile] = useState();
   let users = Cookies.get("user");
   let data = JSON.parse(users)
   let user_id = data?.user?.user_id
+  
 
   const [showcheckboxStyle, setShowcheckboxStyle] = useState(false)
 
@@ -109,7 +115,6 @@ export default function CreateForm() {
     const cloneData = datalable[index]
     setEditlable(cloneData.name)
     setFontSize(cloneData.font)
-
   }
   const handleShow = () => setShow(true);
   const handlesaveShow = () => setShowsave(true)
@@ -697,7 +702,7 @@ export default function CreateForm() {
     const picture = event.target.files[0];
     const selectedFiles = event.target.files;
     const file_attachment = Array.from(selectedFiles);
-    
+
     setSelectedImage([{ name: file_attachment[0].name, positionX: 0, positionY: 0, width: 100, height: 100, type: 'image' }])
     if (picture) {
       const pictureUrl = URL.createObjectURL(picture);
@@ -705,19 +710,9 @@ export default function CreateForm() {
     }
   };
 
-  const handleImageChange = (event) => {
-
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setSelectedImage(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const OnCreate = async () => {
+    setIsLoading(true);
     let images
     if (!file) {
       images = 0
@@ -728,9 +723,10 @@ export default function CreateForm() {
       }
       formData.append("file_name", file);
       let profileImageReturnName = await axios.post("/api/req/upload", formData);
-      images =Object.values(profileImageReturnName.data)[0][0]
+      images = Object.values(profileImageReturnName.data)[0][0]
+      console.log("dddd=",images)
     }
-    
+
     let informdata = {
       form_name: saveAs,
       formstatus: 0,
@@ -738,16 +734,20 @@ export default function CreateForm() {
       InsertDataCheckbox: datacheckbox,
       InsertDataLable: datalable,
       InsertPositionOne: datatable,
-      DataTablepositionOne: tables, 
+      DataTablepositionOne: tables,
       InsertPositionsTwo: datatable1,
       DataTablepositiontwo: tables1,
       InsertPositionsThree: datatable2,
       DataTablepositionThree: tables2,
       InsertSizeForInput: listtext,
-      InsertDataImage:selectedImage,
-      file_name:images
+      InsertDataImage: selectedImage,
+      file_name: images
     }
+    console.log("data=",informdata)
+   
+  
     axios.post("/api/form/Insert-form", informdata).then((data) => {
+      setIsLoading(false);
       setShowsave(false)
     }).catch((err) => {
       console.log(err)
@@ -839,16 +839,21 @@ export default function CreateForm() {
             startIcon={<SaveIcon />}
             onClick={() => { OnCreate() }}
           >
-            Save
+            {!isLoading ? (
+              <>
+                Save
+              </>
+            ) : (
+              <>
+                {
+                  <Spinner animation="border" variant="light" size='sm' />
+                }
+              </>)
+            }
           </Button>
         </div>
-
       </Modal>
-
-
-
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'fixed', top: 65, left: 264, right: 25, zIndex: 0, height: 50, backgroundColor: '#ebedef' }}>
-
         <div>
           <Breadcrumbs aria-label="breadcrumb" style={{ marginTop: 10 }}>
             <Link color="inherit" href="/" className={classes.link}>
@@ -914,8 +919,6 @@ export default function CreateForm() {
           <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 70, cursor: 'pointer', height: 30, marginTop: 10 }}>
 
             <Button
-
-
               variant="contained"
               color="primary"
               size="small"
@@ -961,6 +964,24 @@ export default function CreateForm() {
             />
 
           </div>
+          <ReactToPrint
+            trigger={() =>
+              <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 10 }} >
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  className={classes.button}
+                  startIcon={<PrintIcon />}
+
+                >
+                  Print
+                </Button>
+
+              </div>
+            }
+            content={() => componentRef}
+          />
 
 
         </div>
@@ -969,11 +990,8 @@ export default function CreateForm() {
 
       <div style={{ height: 20 }}>
       </div>
-
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', backgroundColor: '#ebedef', marginTop: 10 }} >
-        <div style={{ width: '86%', height: 2000, border: '1px solid #000', backgroundColor: 'white' }}>
-
-          {/* {JSON.stringify(selectedImage)} */}
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent:'flex-start', backgroundColor: '#ebedef', marginTop: 10 }} >
+      <div ref={(el) => (componentRef = el)} style={{ display:'flex', width: '80%', height: 2000, border: '1px solid #000',backgroundColor:'white'}}>
 
           {
             datatable.map((el, index) => {
@@ -1189,7 +1207,7 @@ export default function CreateForm() {
                   onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
                   onClick={() => { OnClickCheckimage(index) }}
                 >
-                  {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
+       
                   {pictureUrl && (
                     <img src={pictureUrl} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
                   )}
@@ -1198,6 +1216,7 @@ export default function CreateForm() {
             })
           }
         </div>
+
         <div style={{ display: 'flex', flexDirection: "column", position: 'fixed', zIndex: 999, right: 25 }}>
           <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 10 }}>
             {
@@ -1394,7 +1413,6 @@ export default function CreateForm() {
               </>) : null
             }
           </div>
-
         </div>
       </div>
     </>
@@ -1527,10 +1545,7 @@ function CompoentStyleForLable({ editlable, fontSize, changeLable, getindex, cha
                 <DeleteIcon style={{ color: '#fff' }} />
                 <small style={{ color: '#fff', fontWeight: 'bold' }}>Delete</small>
               </div>
-
             </div>
-
-
           </>
         ) : (
           <>

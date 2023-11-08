@@ -18,6 +18,7 @@ import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
 import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
+import { Spinner } from "react-bootstrap";
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
@@ -47,6 +48,7 @@ export const UserEditFrom = () => {
   const [countRow3, setCountRow3] = useState('')
   const [index1, setIndex1] = useState('')
   const [index2, setIndex2] = useState('')
+  const [isLoading, setIsLoading,] = useState(false);
   const [bold, setBold] = useState(false)
   const [editlable, setEditlable] = useState('')
   const [showdeltable, setShowdeltable] = useState(true)
@@ -101,9 +103,10 @@ export const UserEditFrom = () => {
     window.print();
   };
   const OnloadCommentsdata = () => {
-    axios.get(`/api/form-reply/Get-Reply-Status/${id}`).then((e) => {
-      console.log("e=",)
-      if(data.length == 0){
+    axios.get(`/api/request-reply/request-reply/${id}`).then((e) => {
+      console.log("e=",e)
+ 
+      if(e.length == 0){
 
       }else{
         setTextarea([...e?.data?.results][0].comments)
@@ -115,11 +118,10 @@ export const UserEditFrom = () => {
   // /api/req/find-Form-Id
   const OnloadListData = () => {
     axios.get(`/api/req/find-Form-Id/${id}`).then((data) => {
-
       setUsetable([...data?.data?.GetTable_position_one])
       setUsetable1([...data?.data?.GetTable_positions_two])
       setUsetable2([...data?.data?.GetTable_positions_three])
-      // setSelectedImage([...data?.data?.GetImage_positions])
+      setSelectedImage([...data?.data?.GetImage_positions])
       if ([...data?.data?.GetTable_position_one].length == 0) {
 
       } else {
@@ -157,6 +159,7 @@ export const UserEditFrom = () => {
 
 
   const OnUpdate = () => {
+    setIsLoading(true);
     let informdataUpdate = {
       req_uid: id,
       UpdateDataCheckbox: usecheckbox,
@@ -171,6 +174,7 @@ export const UserEditFrom = () => {
     }
     axios.post("/api/req/update-request-form", informdataUpdate).then((data) => {
       OnloadListData()
+      setIsLoading(false);
     }).catch((err) => {
       console.log(err)
     })
@@ -193,7 +197,7 @@ export const UserEditFrom = () => {
       DataTablepositionThree: '',
       InsertSizeForInput: usetextlist
     }
-    console.log("CreateData=", informdata)
+   
     axios.post("/api/req/insert-request-form", informdata).then((data) => {
     }).catch((err) => {
       console.log(err)
@@ -810,9 +814,6 @@ export const UserEditFrom = () => {
     cloneDatas[index] = cloneData
     setUsetextlist([...cloneDatas])
   }
-
-
-
   useEffect(() => {
     OnloadListData()
     OnloadCommentsdata()
@@ -873,6 +874,7 @@ export const UserEditFrom = () => {
         </div>
       </Modal>
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'fixed', top: 65, left: 264, right: 25, zIndex: 0, height: 50, backgroundColor: '#ebedef' }}>
+       
         <div>
           <Breadcrumbs aria-label="breadcrumb" style={{ marginTop: 10 }}>
             <Link color="inherit" href="/" className={classes.link}>
@@ -883,7 +885,6 @@ export const UserEditFrom = () => {
             <Typography color="textPrimary" className={classes.link}>
               <GrainIcon className={classes.icon} />
               <small style={{ color: '#2106f3' }}>Create Form</small>
-
             </Typography>
 
           </Breadcrumbs>
@@ -891,22 +892,31 @@ export const UserEditFrom = () => {
         </div>
         <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
 
-          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }} onClick={() => { OnUpdate() }}>
-
+          <div style={{borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10 }} onClick={() => { OnUpdate() }}>
             <Button
               variant="contained"
               color="primary"
               size="small"
               className={classes.button}
               startIcon={<SaveIcon />}
+
               onClick={() => { OnUpdate() }}
             >
-              save
+              
+              {!isLoading ? (
+                  <>
+                     save
+                  </>
+                ) : (
+                  <>
+                    {
+                      <Spinner animation="border" variant="light" size='sm' />
+                    }
+                  </>)
+                }
             </Button>
           </div>
-
           <div style={{ backgroundColor: '#3f51b5', border: '1px solid #ccc', borderRadius: 3, width: 100, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 20 }} onClick={() => { handleshowcoments() }}>
-  
             <Button
               variant="contained"
               color="primary"
@@ -1308,22 +1318,23 @@ export const UserEditFrom = () => {
               )
             })
           }
+
           {
-            // selectedImage && selectedImage.map((e, index) => {
-            //   return (
-            //     <Rnd
-            //       default={{
-            //         x: e.positionX,
-            //         y: e.positionY,
-            //       }}
-            //     // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
-            //     // onClick={() => { OnClickCheckimage(index) }}
-            //     >
-            //       {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
-            //       <img key={index} src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
-            //     </Rnd>
-            //   )
-            // })
+            selectedImage && selectedImage.map((e, index) => {
+              return (
+                <Rnd
+                  default={{
+                    x: e.positionX,
+                    y: e.positionY,
+                  }}
+                // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
+                // onClick={() => { OnClickCheckimage(index) }}
+                >
+                  {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
+                  <img key={index} src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
+                </Rnd>
+              )
+            })
           }
         </div>
         <div style={{ display: 'flex', flexDirection: "column", position: 'fixed', zIndex: 999, right: 25 }}>

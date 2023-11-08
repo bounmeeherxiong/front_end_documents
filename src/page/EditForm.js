@@ -103,9 +103,9 @@ export default function EditForm() {
   const OnloadCommentsdata = () => {
     axios.get(`/api/form-reply/Get-Reply-Status/${id}`).then((e) => {
 
-      if(e.length == 0){
+      if (e.length == 0) {
 
-      }else{
+      } else {
         setTextarea([...e?.data?.results][0].comments)
       }
 
@@ -119,7 +119,7 @@ export default function EditForm() {
       setUsetable1([...data?.data?.GetTable_positions_two])
       setUsetable2([...data?.data?.GetTable_positions_three])
       setSelectedImage([...data?.data?.GetImage_positions])
- 
+
 
       if ([...data?.data?.GetTable_position_one].length == 0) {
 
@@ -897,62 +897,7 @@ export default function EditForm() {
 
         </div>
       </Modal>
-      {/* <div style={{display:'flex',flexDirection:'row',justifyContent:'flex-start',position:'fixed',top:65,left:264,right:25,zIndex:999,height:50,backgroundColor:'white'}}>
-              <div style={{backgroundColor:'#3f51b5', border: '1px solid #ccc',borderRadius:3,width:80,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnAddText()}}>
-                <InputIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Input</small>
-              </div>
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} 
-              onClick={()=>{handleShow()}}
-              >
-                <BorderAllIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',marginLeft:5,fontWeight:'bold'}} >Table</small>
-              </div>
-      
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewItem()}}>
-                <TextFormatIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff',fontWeight:'bold'}} >Text</small>
-              </div>
-  
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{onAddNewCheckbox()}}>
-                <CheckBoxIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >CheckBox</small>
-              </div>
-                 {
-                  formstatus == 0 ? (
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdate()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Save</small>
-                    </div>
-                  </>
-                  ):(
-                  <>
-                    <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{OnUpdateorformstatus()}}>
-                        <SaveIcon style={{color:'#fff'}} />
-                        <small style={{color:'#fff'}}  >Savef</small>
-                    </div>
-                  
-                  </>)
-                 }
-           
-              <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:100,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} onClick={()=>{handleshowcoments()}}>
-                <CommentIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >comments</small>
-              </div>
-              <ReactToPrint 
-              trigger={()=>
-                <div style={{backgroundColor:'#3f51b5',border: '1px solid #ccc',borderRadius:3,width:80,marginLeft:10,cursor:'pointer',height:30,marginTop:10}} >
-                <PrintIcon style={{color:'#fff'}} />
-                <small style={{color:'#fff'}}  >Print</small>
-    
-              </div>
-              }
-              content={()=>componentRef}
 
-              />
-        
-      </div> */}
 
       <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', position: 'fixed', top: 65, left: 264, right: 25, zIndex: 0, height: 50, backgroundColor: '#ebedef' }}>
         <div>
@@ -1138,8 +1083,10 @@ export default function EditForm() {
 
       <div style={{ height: 20 }}>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', backgroundColor: '#ebedef', marginTop: 10 }}  >
-        <div style={{ width: '86%', height: 2000, border: '1px solid #000', justifyContent: 'flex-start', backgroundColor: 'white' }}>
+
+      <div style={{ display: 'flex', flexDirection: 'row', justifyContent:'flex-start', backgroundColor: '#ebedef', marginTop: 10 }}  >
+      <div ref={(el) => (componentRef = el)} style={{ display:'flex', width: '295mm', height: 2000, border: '1px solid #000',backgroundColor:'white'}}>
+         
           {/* {JSON.stringify(usetextlist)} */}
           {
             datatable && datatable.map((el, index) => {
@@ -1513,10 +1460,8 @@ export default function EditForm() {
                     x: e.positionX,
                     y: e.positionY,
                   }}
-                  // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
-                  // onClick={() => { OnClickCheckimage(index) }}
                 >
-                  {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
+
                   <img src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
                 </Rnd>
               )
@@ -1525,6 +1470,7 @@ export default function EditForm() {
         </div>
         <div style={{ display: 'flex', flexDirection: "column", position: 'fixed', zIndex: 999, right: 25 }}>
           <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 10 }}>
+          
             {
               listtextw.length == 0 ? (
                 <>
@@ -1697,9 +1643,9 @@ export default function EditForm() {
         </div>
       </div>
       {/* ====================================funcionst printer====================== */}
-      <div style={{ display: 'none', width: '100%' }} >
-        <div ref={(el) => (componentRef = el)} style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', justifyItems: 'center', width: '100%', backgroundColor: 'green' }}>
-          {
+      {/* <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', backgroundColor: '#ebedef', marginTop: 10 }}  >
+        <div ref={(el) => (componentRef = el)} style={{ width: '210mm', height: '297mm', border: '1px solid #000', justifyContent: 'flex-start', backgroundColor: 'white' }}>
+        {
             uselable && uselable.map((el, index) => {
               return (
                 <Rnd
@@ -1713,6 +1659,7 @@ export default function EditForm() {
                   onClick={() => onClickOnElementupdate(index)}
                   style={{ display: 'flex', justifyContent: 'flex-start' }}
                 >
+
                   <small style={{ fontSize: el.font, fontWeight: el.fontWeight }}>{el.name}</small>
                 </Rnd>
               )
@@ -1720,9 +1667,9 @@ export default function EditForm() {
             })
           }
         </div>
+     
+      </div> */}
 
-
-      </div>
 
     </>
   )

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Table from '@material-ui/core/Table';
@@ -13,19 +13,12 @@ import moment from "moment";
 import { Modal } from "react-bootstrap";
 import Cookies from 'js-cookie';
 import Pagination from '@material-ui/lab/Pagination';
-import Button from "@material-ui/core/Button";
-import SendIcon from '@material-ui/icons/Send';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
-import AddIcon from '@material-ui/icons/Add';
-import { Spinner } from "react-bootstrap";
+import { LoginContext } from "../page/contexts/LoginContext";
 const useStyles = makeStyles((theme) => ({
   table: {
     minWidth: 650,
@@ -59,6 +52,7 @@ export const Doc_no = () => {
   let users = Cookies.get("user");
   let data = JSON.parse(users)
   let user_id = data?.user?.user_id
+  const { setId, setShowUserCheckFormScreen } = useContext(LoginContext)
   const handleClosedel = () => {
     setShow(false);
   }
@@ -70,7 +64,8 @@ export const Doc_no = () => {
   const handleShow1 = () => { setShow1(true) }
 
   const OnloadFormData = () => {
-    axios.get(`/api/no/Get-All-Request-DocNumber/${user_id}`).then((data) => {
+    axios.get(`/api/no/Get-All-Request-DocNumber`).then((data) => {
+      console.log("Loading=", data)
       setDataList([...data?.data?.results])
     }).catch((err) => {
       console.log(err)
@@ -91,11 +86,13 @@ export const Doc_no = () => {
       console.log(err)
     ))
   }
-  const onDetailForm = (id) => {
-    Navigate(`/Form/${id}`);
-  }
+
   const onEditform = (id) => {
-    Navigate(`/UserCheckDoc_no/${id}`)
+
+
+    // Navigate(`/UserCheckDoc_no/${id}`)
+    setId(id)
+    setShowUserCheckFormScreen(true)
   }
   const onGoViewApproved = (id) => {
     Navigate(`/ViewApproved/${id}`)
@@ -128,6 +125,7 @@ export const Doc_no = () => {
   const OnOptions1 = (e) => {
     setEmployee_id(e)
   }
+
   const Oncreate = () => {
     let createdata = {
       req_id: form_uid,
@@ -219,7 +217,7 @@ export const Doc_no = () => {
             <span style={{ fontSize: 14, paddingTop: 10 }}>
               Setting </span>
           </Modal.Header>
-          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
+          {/* <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
             <div>
               <small style={{ fontWeight: 'bold', fontSize: 15 }}>Approved by:</small>
               <select
@@ -241,8 +239,8 @@ export const Doc_no = () => {
 
             </div>
 
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10, marginRight: 15 }}>
+          </div> */}
+          {/* <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10, marginRight: 15 }}>
             <button
               style={{
                 border: '1px solid #ccc',
@@ -253,18 +251,17 @@ export const Doc_no = () => {
               }}
               onClick={() => { Oncreate() }}
             >Save</button>
-          </div>
+          </div> */}
+
         </Modal>
         <Breadcrumbs aria-label="breadcrumb" style={{ backgroundColor: '#ebedef' }}>
           <Link color="inherit" href="/" className={classes.link}>
             <HomeIcon className={classes.icon} />
             <small style={{ color: '#2106f3' }}>Home</small>
-
           </Link>
           <Typography color="textPrimary" className={classes.link}>
             <GrainIcon className={classes.icon} />
             <small style={{ color: '#2106f3' }}>Informations</small>
-
           </Typography>
 
         </Breadcrumbs>
@@ -328,7 +325,6 @@ export const Doc_no = () => {
                         <TableCell>#</TableCell>
                         <TableCell>Form Name</TableCell>
                         <TableCell>Datetime</TableCell>
-                        <TableCell>Created by</TableCell>
                         <TableCell>Status</TableCell>
                         <TableCell align="right">Actions</TableCell>
                       </TableRow>
@@ -342,24 +338,13 @@ export const Doc_no = () => {
                                 <TableCell>{index + 1}</TableCell>
                                 <TableCell>{data?.title}</TableCell>
                                 <TableCell>{moment(data?.created_at).format('DD-MM-YYYY')}</TableCell>
-                                <TableCell>{data?.createdby_name}</TableCell>
-                                {
-                                  data?.createdstatus == 0 ? (
-                                    <>
-                                      <TableCell style={{ cursor: 'pointer' }}>
-                                        <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                          <small style={{ color: 'white' }}>Requested</small>
-                                        </div>
 
-                                      </TableCell>
-                                    </>) : null
-                                }
                                 {
                                   data?.createdstatus == 1 ? (
                                     <>
                                       <TableCell style={{ cursor: 'pointer' }}>
                                         <div style={{ backgroundColor: '#f9b115', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                          <small style={{ color: 'white' }}>Rejected...</small>
+                                          <small style={{ color: 'white' }}>Requested</small>
                                         </div>
 
                                       </TableCell>
@@ -376,40 +361,6 @@ export const Doc_no = () => {
                                       </TableCell>
                                     </>) : null
                                 }
-                                {
-                                  data?.createdstatus == 4 ? (
-                                    <>
-                                      <TableCell style={{ cursor: 'pointer' }}>
-                                        <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                          <small style={{ color: 'white' }}>Rejected</small>
-                                        </div>
-
-                                      </TableCell>
-                                    </>) : null
-                                }
-                                {
-                                  data?.createdstatus == 5 ? (
-                                    <>
-                                      <TableCell style={{ cursor: 'pointer' }}>
-                                        <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                          <small style={{ color: 'white' }}>Draft</small>
-                                        </div>
-
-                                      </TableCell>
-                                    </>) : null
-                                }
-                                {
-                                  data?.createdstatus == 3 ? (
-                                    <>
-                                      <TableCell style={{ cursor: 'pointer' }}>
-                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                          <small style={{ color: 'white' }}>Approved</small>
-                                        </div>
-
-                                      </TableCell>
-                                    </>) : null
-                                }
-
                                 <TableCell style={{ cursor: 'pointer' }}>
                                   <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
                                     <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 30, marginRight: 5 }} onClick={() => { onEditform(data?.req_id) }}>
@@ -428,7 +379,6 @@ export const Doc_no = () => {
                         <TableCell>#</TableCell>
                         <TableCell>Form Name</TableCell>
                         <TableCell>Datetime</TableCell>
-                        <TableCell>Created by</TableCell>
                         <TableCell>Status</TableCell>
                         <TableCell align="right">Actions</TableCell>
                       </TableRow>
@@ -443,31 +393,21 @@ export const Doc_no = () => {
 
           </div>
           {
-          dataList.length == 0 ? (<>
-          </>) : (<>
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-              <div>
+            dataList.length == 0 ? (<>
+            </>) : (<>
+              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
+                <div>
+
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <small style={{ fontSize: 25 }}>Pagination:</small>
+                  <Pagination count={10} variant="outlined" shape="rounded" />
+                </div>
 
               </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                <small style={{ fontSize: 25 }}>Pagination:</small>
-                <Pagination count={10} variant="outlined" shape="rounded" />
-              </div>
-
-            </div>
-          </>)
-        }
+            </>)
+          }
         </div>
-
-
-
-
-
-
-
-
-
-
 
       </div>
 

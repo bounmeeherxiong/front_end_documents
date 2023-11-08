@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { api } from "./page/contexts/api";
 import Home from "./template/home";
@@ -31,6 +31,18 @@ function App() {
   const [listItemCart, setListItemCart] = useState([])
   const [list,setList]=useState([])
   const [dataList,setDataList]=useState([])
+  const [open, setOpen] = useState(false);
+  const [listOpent, setListOpent] = useState(false);
+  const [listopenForm, setListopenForm] = useState(false)
+  const [showformscreen,setShowformscreen]=useState(false)
+  const [showformEditScreen,setshowformEditScreen]=useState(false)
+  const [showViewFormScreen,setShowViewFormScreen]=useState(false)
+  const [showUserusingFormScreen,setShowUserusingFormScreen]=useState(false)
+  const [showUserEditFormScreen,setShowUserEditFormScreen]=useState(false)
+  const [showUserCheckFormScreen,setShowUserCheckFormScreen]=useState(false)
+
+  const [id,setId]=useState('')
+ 
   const OnloadListItemcard = () => {
     axios.get('/api/document/get-itemsCart').then((data) => {
       setListItemCart([...data?.data?.results])
@@ -51,10 +63,34 @@ function App() {
       setAuthToken(data.token)
     }
   } 
-  
   return (
     <div>
-      <LoginContext.Provider value={{listItemCart,OnloadListItemcard,dataList,setDataList}}>
+      <LoginContext.Provider value={{
+        listItemCart,
+        OnloadListItemcard,
+        dataList,
+        setDataList,
+        open,
+        setOpen,
+        listOpent,
+        setListOpent,
+        listopenForm,
+        setListopenForm,
+        showformscreen,
+        setShowformscreen,
+        id,
+        setId,
+        showformEditScreen,
+        setshowformEditScreen,
+        showViewFormScreen,
+        setShowViewFormScreen,
+        showUserusingFormScreen,
+        setShowUserusingFormScreen,
+        showUserEditFormScreen,
+        setShowUserEditFormScreen,
+        showUserCheckFormScreen,
+        setShowUserCheckFormScreen
+        }}>
       <Router>
         <Home>
           <Routes>

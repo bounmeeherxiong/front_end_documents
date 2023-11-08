@@ -23,12 +23,29 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import { green } from '@material-ui/core/colors';
-import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { withStyles } from '@material-ui/core/styles';
 import SaveIcon from '@material-ui/icons/Save';
 import { Spinner } from "react-bootstrap";
+import { LoginContext } from "../page/contexts/LoginContext";
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import ArrowDropUpIcon from '@material-ui/icons/ArrowDropUp';
+import Timeline from '@material-ui/lab/Timeline';
+import TimelineItem from '@material-ui/lab/TimelineItem';
+import TimelineSeparator from '@material-ui/lab/TimelineSeparator';
+import TimelineConnector from '@material-ui/lab/TimelineConnector';
+import TimelineContent from '@material-ui/lab/TimelineContent';
+import TimelineOppositeContent from '@material-ui/lab/TimelineOppositeContent';
+import TimelineDot from '@material-ui/lab/TimelineDot';
+import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
+import CheckCircleOutlineIcon from '@material-ui/icons/CheckCircleOutline';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import Paper from '@material-ui/core/Paper';
+import WarningIcon from '@material-ui/icons/Warning';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
+
 
 import moment from "moment";
 const GreenCheckbox = withStyles({
@@ -58,112 +75,234 @@ const useStyles = makeStyles((theme) => ({
 export default function RequestForm() {
   const classes = useStyles();
   const Navigate = useNavigate();
-  const [state, setState] = React.useState({
-    checkedA: true,
-    checkedB: true,
-    checkedF: true,
-    checkedG: true,
-  });
+
   const [isLoading, setIsLoading,] = useState(false);
+  const [g_department_id, setG_department_id] = useState('')
   const [show, setShow] = useState(false);
+  const [showsecond, setShowsecond] = useState(false)
   const [form_uid, setForm_uid] = useState('')
   const [employee_id, setEmployee_id] = useState('')
-  const [employee_name, setEmployee_name] = useState('')
-  const [created_by_id, setcreated_by_id] = useState('')
+  const [app_id, setApp_id] = useState('')
   const [created_by_name, setCreated_by_name] = useState('')
   const [listdata, setListdata] = useState([])
   const [isdisabled, setIsdisabled] = useState(true)
   const [ischeckstatus, setIscheckstatus] = useState(0)
-  const [isChecklavel, setIsChecklavel] = useState()
+  const [listshowemployee, setListshowemployee] = useState([])
+  const [openingsetting, setOpeningsetting] = useState(false)
   const [datalist, setDatalist] = useState([])
   const [levels, setLevels] = useState([])
   const [checkerr, setCheckerr] = useState('')
+  const [conditions, setConditions] = useState(false)
+  const [showSave, setShowSave] = useState(false);
   const [status, setStatus] = useState('')
   const [isdisabled1, setIsdisabled1] = useState(false)
   const [isdisabled2, setIsdisabled2] = useState(false)
-  let users = Cookies.get("user");
-  let data = JSON.parse(users)
-  let user_id = data?.user?.user_id
+  const [isdisabled3, setIsdisabled3] = useState(false)
+  const [isdisabled4, setIsdisabled4] = useState(true)
+  const [listdepartment, setlistdepartment] = useState('')
+  const [listallemployee, setListallemployee] = useState([]);
+  const [number, setNumber] = useState()
+  const [listpersion, setListpersion] = useState([]);
+  const [listcartdata, setListcartdata] = useState([])
+  const [createSetting, setCreateSetting] = useState('')
+  const [isHovered, setIsHovered] = useState(false);
+  const [isHovered1, setIsHovered1] = useState(false);
+  const [dataLavel, setDataLavel] = useState([])
+  const [listLavel, setListLavel] = useState([])
+  const [dataUser, setDataUser] = useState([])
+  const [errsetting, setErrsetting] = useState(false)
+  const { setId, setShowViewFormScreen } = useContext(LoginContext)
   const handleClosedel = () => {
     setShow(false);
-    setEmployee_id('')
     setIsdisabled(true)
+    setIsdisabled1(false)
+    setIsdisabled2(false)
+    setIsdisabled3(false)
+    setCreateSetting('')
 
   }
   const handleShow = () => setShow(true);
-  const Onsetting = (e, user_name, form_uid) => {
-    let infordata = {
-      employee_id: e
-    }
-    setForm_uid(form_uid)
-    setCreated_by_name(user_name)
-    setcreated_by_id(e)
-    axios.post('/api/setting/all-employee-by-group', infordata).then((data) => {
-      setListdata([...data?.data?.results])
+  const hadleShowSecond = () => setShowsecond(true);
+  const Onsetting = (form_id, app_id) => {
+    console.log("dataApp=",app_id)
+    
+    setForm_uid(form_id)
+    setApp_id(app_id)
+  }
+  const handleCloseOpenting = () => {
+    setErrsetting('')
+    setOpeningsetting(false)
+
+  }
+  const OnFirstConditions = () => {
+    setConditions(false)
+  }
+  const OnSecondConditions = () => {
+    setConditions(true)
+  }
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+  const handleMouseEnter1 = () => {
+    setIsHovered1(true);
+    // setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+  const handleMouseLeave1 = () => {
+    setIsHovered1(false);
+  };
+  const handleOpen = () => {
+    setShowSave(true)
+  };
+
+  const handleClose = () => {
+    setShowSave(false)
+  };
+
+  const OnlaodDepartment = () => {
+    axios.get('/api/setting/all-department').then((data) => {
+      setlistdepartment([...data?.data?.results])
     }).catch((err) => {
       console.log(err)
     })
+  }
+  const OnloadAllEmployee = () => {
+    axios.get('/api/setting/all-employee').then((data) => {
+      setListallemployee([...data?.data?.results])
 
+    }).catch((err) => {
+      console.log(err)
+    })
   }
   const OnloadListViewrequest = () => {
-    axios.get(`/api/setting/view-form-request/${user_id}`).then((data) => {
+    axios.get('/api/setting/view-form-request').then((data) => {
+      console.log("dataList=", data)
       setDatalist([...data?.data?.results])
     }).catch((err) => {
       console.log(err)
     })
   }
-  const Check_user = () => {
-    axios.get(`/api/setting/get-level/${user_id}`).then((data) => {
-      if(data.length == 0){
+  const OnOptionschoose_number = (e) => {
+    setNumber(e)
 
-      }else{
-        setLevels([...data?.data?.results][0].levels)
-      }
+  }
+  const OnOptionsDepart = (e) => {
+    setG_department_id(e)
+    let list = listallemployee.filter((el) => el.department_id == e)
+    setListshowemployee([...list])
+  }
+  const Check_user = () => {
+    // axios.get('/api/setting/get-level').then((data) => {
+    //   if(data.length == 0){
+
+    //   }else{
+    //     setLevels([...data?.data?.results][0].levels)
+    //   }
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
+  }
+  const OnLoadCount = () => {
+    axios.get('/api/setting/all-approve').then((data) => {
+
     }).catch((err) => {
       console.log(err)
     })
   }
   const Oncreate = () => {
-    setIsLoading(true);
-    let createdata = {
-      form_id: form_uid,
-      levels: 2,
-      user_id: employee_id,
-      user_name: employee_name,
-      created_by: created_by_id,
-      signature: 0,
-      signature_uid: '4',
-      created_by_name: created_by_name,
-      formstatus: ischeckstatus
-    }
-    axios.post('/api/setting/Insert-Second-Setting-Level', createdata).then((data) => {
-      setShow(false)
-      OnloadListViewrequest()
-      setEmployee_id('')
-      setIsLoading(false);
+    const list = listshowemployee.filter((el) => el.employee_id == employee_id)
+    const name = [...list][0].employee_name
+    const cloneDataEm = [...listcartdata]
+    cloneDataEm.push(...list)
+    setListcartdata([...cloneDataEm])
+    const cloneData = [...listpersion]
+    cloneData.push({ approver_id: employee_id })
+    setListpersion([...cloneData])
+  }
 
+
+  const CreateSenddate = (get_form_id, approval_id, formstatus) => {
+    console.log(approval_id)
+    if (approval_id == null) {
+      setOpeningsetting(true)
+    } else {
+      setShowSave(true)
+      setIsLoading(true)
+      let informdata = {
+        form_id: get_form_id,
+        approval_uid: approval_id
+      }
+      axios.post('/api/setting/insert-setting', informdata).then((data) => {
+        OnloadListViewrequest();
+        setIsLoading(false)
+        setShowSave(false)
+      }).catch((err) => {
+        console.log(err)
+      })
+    }
+    // const get_approval_uid = await axios.get(`/api/setting/get-setting-approval/${get_form_id}`).then((data) => {
+    //   const approvalId = data?.data?.results[0]?.approval_id;
+    //   return approvalId;
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
+    // if (approvalId == null) {
+    //   setErrsetting(true)
+    //   OnloadListViewrequest();
+    // } else {
+    // setShowSave(true)
+    // setIsLoading(true)
+    // let informdata = {
+    //   form_id: get_form_id,
+    //   approval_uid: approvalId
+    // }
+    // axios.post('/api/setting/insert-setting', informdata).then((data) => {
+    //   OnloadListViewrequest()
+    //   setIsLoading(false)
+    //   setShowSave(false)
+    // }).catch((err) => {
+    //   console.log(err)
+    // })
+    // }
+  }
+  const CreateEmployeeApproved = () => {
+    setIsLoading(true)
+    let createdate = {
+      max_approval: number,
+      form_id: form_uid,
+      details: listpersion
+    }
+    axios.post('/api/approval-setting/create-approval', createdate).then((data) => {
+      setShow(false);
+      setIsLoading(false)
+      setNumber('');
+      setListpersion('');
+      setG_department_id('');
+      setEmployee_id('');
+      setListcartdata('');
+      OnloadListViewrequest();
     }).catch((err) => {
       console.log(err)
     })
   }
   const Creatappoved = () => {
-    if (!status) {
-      setCheckerr('2023')
-      return;
-    }
-
-    let datainf = {
+    let dataApp = {
       form_id: form_uid,
-      formstatus: status
     }
-    axios.post('/api/setting/update-To-Approved-Status/', datainf).then((data) => {
+    console.log("dataApp=",dataApp)
+    axios.post('/api/setting/update-To-Approved-Status', dataApp).then((data) => {
       OnloadListViewrequest()
+      setIsdisabled1(false)
+      setIsdisabled2(false)
+      setIsdisabled3(false)
       setShow(false)
-
+      setCreateSetting('')
     }).catch((err) => {
       console.log(err)
     })
-
   }
   const CreatRejected = () => {
     if (!status) {
@@ -174,7 +313,7 @@ export default function RequestForm() {
       form_id: form_uid,
       formstatus: status
     }
-    axios.post('/api/setting/update-To-Approved-Status/', datainf).then((data) => {
+    axios.post('/api/setting/update-To-Approved-Status', datainf).then((data) => {
       OnloadListViewrequest()
       setShow(false)
     }).catch((err) => {
@@ -183,157 +322,258 @@ export default function RequestForm() {
   }
   const OnOptions = (e) => {
     setEmployee_id(e)
-    setIsdisabled(false)
-    let list = listdata.filter((el) => el.employee_id.includes(e))
-    setEmployee_name([...list][0].employee_name)
+
   }
   const OnViewForm = (id) => {
-    Navigate(`/ViewForm/${id}`);
+    setId(id)
+    setShowViewFormScreen(true)
   }
   const onEditform = (id) => {
     Navigate(`/EditForm/${id}`)
   }
   const handlechange = e => {
-
     if (e.target.checked) {
-      console.log(e.target.checked)
+
       setIscheckstatus(2)
     } else {
       console.log("ture")
     }
   }
   const handlechangedes = e => {
-    setCheckerr('')
     if (e.target.checked) {
+      setCreateSetting(1)
       setIsdisabled2(true)
-      setStatus(3)
-
+      setIsdisabled3(true)
     } else {
       setIsdisabled2(false)
+      setIsdisabled3(false)
+      setCreateSetting('')
     }
   }
   const handlechangedes1 = e => {
 
-    setCheckerr('')
     if (e.target.checked) {
       setIsdisabled1(true)
+      setIsdisabled3(true)
+      setCreateSetting(2)
       setStatus(4)
+    } else {
+      setIsdisabled1(false)
+      setIsdisabled3(false)
+    }
+  }
+
+  const handlechangedes2 = e => {
+    if (e.target.checked) {
+      setCreateSetting(2)
+      setIsdisabled1(true)
+      setIsdisabled2(true)
+      setIsdisabled4(false)
 
     } else {
       setIsdisabled1(false)
+      setIsdisabled2(false)
+      setIsdisabled4(true)
     }
   }
+
+  const OnloadInformationsTimeline = (form_id) => {
+    axios.get(`/api/form/get-approval-data/${form_id}`).then((data) => {
+      console.log("OnloadInformationsTimeline=", data)
+      setDataLavel([...data?.data?.approvals])
+      setDataUser([...data?.data?.users])
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+  // const OnFindForm_id = (e_id) => {
+  //   let lavel = dataLavel.filter((e) => e.form_id == e_id)
+  //   setListLavel([...lavel])
+  // }
   useEffect(() => {
     OnloadListViewrequest()
     Check_user()
+    OnlaodDepartment();
+    OnloadAllEmployee()
+    OnLoadCount();
 
   }, [])
   return (
     <>
-      <div style={{ width: '100%' }}>
-        {
-          levels === 3 ? (
+
+      <Modal show={openingsetting} onHide={handleCloseOpenting} style={{ paddingTop: 50 }} size="sm">
+        <Modal.Header closeButton>
+          <span style={{ fontSize: 25, fontWeight: 'bold', paddingTop: 10, color: '#FF7733' }}>Warning</span>
+        </Modal.Header>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+          <WarningIcon style={{ color: '#FF7733', marginLeft: 40, marginTop: 20, fontSize: 40 }} />
+          <small style={{ fontSize: 30, marginRight: 30, marginTop: 20 }}>Please setting</small>
+        </div>
+      </Modal>
+      <Modal show={showSave} onHide={handleClose} style={{ paddingTop: 50 }} size="sm">
+        <Modal.Header closeButton>
+          <span style={{ fontSize: 25, fontWeight: 'bold', paddingTop: 10, color: '#2eb85c' }}>Peding..</span>
+        </Modal.Header>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+          {!isLoading ? (
             <>
-              <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="sm">
-                <Modal.Header closeButton>
-                  <span style={{ fontSize: 25, fontWeight: 'bold', paddingTop: 10 }}>
-                    Setting </span>
-                </Modal.Header>
-                <div style={{ width: '100%', display: 'flex', justifyContent: 'center', position: 'absolute' }}>
-                  {
-                    checkerr === '2023' ? (<>
-                      <small>fasfasfds</small>
-                    </>) : null
-                  }
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 20 }}>
-                  <div style={{ marginTop: 9 }}>
+              <CheckCircleIcon style={{ color: '#2eb85c', marginLeft: 40, marginTop: 20, fontSize: 40 }} />
+              <small style={{ fontSize: 30, marginRight: 35, marginTop: 20 }}>Successfully....</small>
+
+            </>
+          ) : (
+            <>
+              <CircularProgress style={{ marginLeft: 40, marginTop: 20, fontSize: 40 }} />
+              <small style={{ fontSize: 30, marginRight: 30, marginTop: 20 }}>Waiting....</small>
+            </>)
+          }
+        </div>
+      </Modal>
+      <div style={{ width: '100%' }}>
+        <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="lg">
+          <Modal.Header closeButton>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{
+                  fontSize: 30,
+                  fontWeight: 'bold',
+                  textDecorationLine: 'underline',
+                  cursor: 'pointer',
+                  // // backgroundColor: isHovered ? 'lightblue' : 'white',
+                  color: isHovered ? 'red' : 'green',
+                  textDecorationLine: isHovered ? 'underline' : '',
+                  cursor: 'pointer',
+                }}
+                  onMouseEnter={handleMouseEnter}
+                  onMouseLeave={handleMouseLeave}
+                  onClick={() => { OnFirstConditions() }}
+                >
+                  Setting </span>
+                {
+                  conditions == false ? (<>
+                    <ArrowDropUpIcon style={{ fontSize: 50, marginTop: -15, marginLeft: 15 }} />
+
+                  </>) : null
+                }
+
+              </div>
+
+              <span style={{
+                fontSize: 30,
+                fontWeight: 'bold',
+                marginLeft: 10,
+                cursor: 'pointer'
+              }}>||</span>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <span style={{
+                  fontSize: 30,
+                  fontWeight: 'bold',
+                  cursor: 'pointer',
+                  marginLeft: 10,
+                  color: isHovered1 ? 'red' : '',
+                  textDecorationLine: isHovered1 ? 'underline' : '',
+                }}
+                  onMouseEnter={handleMouseEnter1}
+                  onMouseLeave={handleMouseLeave1}
+                  onClick={() => { OnSecondConditions() }}
+                >
+                  Timelines </span>
+                {
+                  conditions == true ? (<>
+                    <ArrowDropUpIcon style={{ fontSize: 50, marginTop: -15, marginLeft: 15 }} />
+
+                  </>) : null
+                }
+              </div>
+
+            </div>
+          </Modal.Header>
+          {
+            conditions == false ? (
+              <>
+                <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'flex-start' }}>
+                  <div style={{ marginLeft: 10 }}>
                     <FormControlLabel
                       control={
                         <Checkbox
-                          disabled={isdisabled1}
                           color="primary"
+                          disabled={isdisabled1}
                           onChange={handlechangedes}
                         />
                       }
-                      label="Approved"
+                      label="Your want to  Approved this form "
                     />
                   </div>
-                  <div>
-                    <FormGroup row style={{ marginTop: 10, marginRight: 30 }}>
-                      <FormControlLabel
-                        style={{ fontSize: 20 }}
-                        control={
-                          <Checkbox
-
-                            disabled={isdisabled2}
-                            onChange={handlechangedes1}
-                            color="Secondary"
-
-                          />}
-                        label="Rejected"
-                      />
-                    </FormGroup>
-                  </div>
-
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10, marginRight: 15 }}>
-                  {
-                    isdisabled1 == true ? (<>
-                      <Button
-                        style={{ marginBottom: 20 }}
-                        variant="contained"
-                        color="primary"
-                        size="large"
-                        className={classes.button}
-                        startIcon={<SaveIcon />}
-                        onClick={() => { CreatRejected() }}
-                      >
-                        Save
-                      </Button>
-
-                    </>) : (
-                      <>
-
-                        <Button
-                          style={{ marginBottom: 20 }}
-                          variant="contained"
+                  <div style={{ marginLeft: 90 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          disabled={isdisabled2}
+                          onChange={handlechangedes1}
                           color="primary"
-                          size="large"
-                          className={classes.button}
-                          startIcon={<SaveIcon />}
-                          onClick={() => { Creatappoved() }}
-                        >
-                          Save
-                        </Button>
-                      </>)
-                  }
-
+                        />
+                      }
+                      label="Your want to  Rejected this form "
+                    />
+                  </div>
                 </div>
-
-
-              </Modal>
-            </>
-          ) : (<>
-
-            <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="lg">
-              <Modal.Header closeButton>
-                <span style={{ fontSize: 20, paddingTop: 10, fontWeight: 'bold' }}>
-                  Setting </span>
-              </Modal.Header>
-              <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
-                <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
-                  <div style={{ display: 'flex', flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
-                    <small style={{ fontWeight: 'bold', fontSize: 20, marginTop: 20, marginLeft: 30 }}>Approved by:</small>
-                    <FormControl className={classes.formControl} style={{ width: '70%', marginRight: 30 }}>
+                <div style={{ width: '100%', border: '0.1px solid #ccc', backgroundColor: 'gray' }}></div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                  <div style={{ marginLeft: 10 }}>
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          disabled={isdisabled3}
+                          color="primary"
+                          onChange={handlechangedes2}
+                        />
+                      }
+                      label="Setting the next approved person"
+                    />
+                  </div>
+                </div>
+                <div style={{ width: '100%', border: '0.1px solid #ccc', backgroundColor: 'gray' }}></div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', width: '50%', marginRight: 10 }}>
+                    <FormControl className={classes.formControl}>
+                      <InputLabel id="demo-simple-select-label">Approved amout person</InputLabel>
+                      <Select
+                        onChange={(e) => OnOptionschoose_number(e.target.value)}
+                        value={number}
+                      >
+                        <MenuItem value='1'>1</MenuItem>
+                        <MenuItem value='2'>2</MenuItem>
+                        <MenuItem value='3'>3</MenuItem>
+                        <MenuItem value='4'>4</MenuItem>
+                        <MenuItem value='5'>5</MenuItem>
+                        <MenuItem value='5'>6</MenuItem>
+                        <MenuItem value='5'>7</MenuItem>
+                        <MenuItem value='5'>8</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <FormControl className={classes.formControl} style={{ marginTop: 10 }}>
+                      <InputLabel id="demo-simple-select-label">Choose Department</InputLabel>
+                      <Select
+                        onChange={(e) => OnOptionsDepart(e.target.value)}
+                        value={g_department_id}
+                      >
+                        {
+                          listdepartment && listdepartment.map((item, index) => {
+                            return (
+                              <MenuItem key={index} value={item?.department_id}>{item?.department_name}</MenuItem>
+                            )
+                          })
+                        }
+                      </Select>
+                    </FormControl>
+                    <FormControl className={classes.formControl} style={{ marginTop: 10 }}>
                       <InputLabel id="demo-simple-select-label">Approved person</InputLabel>
                       <Select
-
                         onChange={(e) => OnOptions(e.target.value)}
                         value={employee_id}
                       >
                         {
-                          listdata && listdata.map((item, index) => {
+                          listshowemployee && listshowemployee.map((item, index) => {
                             return (
                               <MenuItem key={index} value={item?.employee_id}>{item?.employee_name}</MenuItem>
                             )
@@ -341,52 +581,304 @@ export default function RequestForm() {
                         }
                       </Select>
                     </FormControl>
-
                   </div>
-                  <FormGroup row style={{ marginTop: 20, marginRight: 30 }}>
-                    <FormControlLabel
-                      disabled={isdisabled}
-                      onChange={handlechange}
-                      control={<GreenCheckbox />
-                      }
-                    />
-                  </FormGroup>
+                  <div style={{ width: '50%', marginTop: 20, border: '1px solid #ccc', backgroundColor: 'white', borderRadius: 10, marginRight: 20 }}>
+                    <small style={{ fontSize: 12, fontWeight: 'bold', marginLeft: 10 }}>List Approved person</small>
+                    <TableContainer>
+                      <Table className={classes.table} size="small" aria-label="a dense table">
+                        <TableHead>
+                          <TableRow>
+                            <TableCell></TableCell>
+                            <TableCell></TableCell>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {
+                            listpersion.length == 0 ? (
+                              <>
+                                <div>
+                                  <small style={{ fontSize: 20, fontWeight: 'bold', color: "#2106f3", marginLeft: 100, }}>There are no data!</small>
+                                </div>
 
+                              </>) : (
+                              <>
+                                {
+                                  listcartdata && listcartdata.map((data, index) => {
+                                    return (
+                                      <>
+                                        <TableRow key={index}>
+                                          <TableCell style={{ width: 10 }}>{index + 1}</TableCell>
+                                          <TableCell align="left">{data?.employee_name}</TableCell>
 
+                                        </TableRow>
+                                      </>
+                                    )
+                                  })
+                                }
+                              </>
+                            )
+                          }
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </div>
                 </div>
-              </div>
-
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 30, marginLeft: 10, marginRight: 15 }}>
-                <Button
-                  style={{ marginBottom: 20, marginRight: 35 }}
-                  variant="contained"
-                  color="primary"
-                  className={classes.button}
-                  endIcon={<SendIcon>send</SendIcon>}
-                  onClick={() => { Oncreate() }}
-                >
-                  {!isLoading ? (
-                    <>
-                      Send
-                    </>
-                  ) : (
-                    <>
-                      {
-                        <Spinner animation="border" variant="light" size='sm' />
-                      }
-                    </>)
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, marginLeft: 10, marginRight: 15 }}>
+                  <Button
+                    style={{ marginBottom: 20 }}
+                    variant="contained"
+                    color="primary"
+                    className={classes.button}
+                    endIcon={<SendIcon>send</SendIcon>}
+                    disabled={isdisabled4}
+                    onClick={() => { Oncreate() }}
+                  >
+                    Add Employee
+                  </Button>
+                  {
+                    createSetting == 1 ? (
+                      <>
+                        <Button
+                          style={{ marginBottom: 20 }}
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                          endIcon={<SaveIcon>Save and new</SaveIcon>}
+                          onClick={() => { Creatappoved() }}
+                        >
+                          {!isLoading ? (
+                            <>
+                              Save & Close1
+                            </>
+                          ) : (
+                            <>
+                              {
+                                <Spinner animation="border" variant="light" size='sm' />
+                              }
+                            </>)
+                          }
+                        </Button>
+                      </>) : null
                   }
+                  {
+                    createSetting == 2 ? (
+                      <>
+                        <Button
+                          style={{ marginBottom: 20 }}
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                          endIcon={<SaveIcon>Save and new</SaveIcon>}
+                          onClick={() => { CreateEmployeeApproved() }}
+                        >
+                          {!isLoading ? (
+                            <>
+                              Save & Close
+                            </>
+                          ) : (
+                            <>
+                              {
+                                <Spinner animation="border" variant="light" size='sm' />
+                              }
+                            </>)
+                          }
+                        </Button>
 
-                </Button>
-              </div>
+                      </>) : null
+                  }
+                  {
+                    createSetting == 3 ? (
+                      <>
+                        <Button
+                          style={{ marginBottom: 20 }}
+                          variant="contained"
+                          color="primary"
+                          className={classes.button}
+                          endIcon={<SaveIcon>Save and new</SaveIcon>}
+                          onClick={() => { CreateEmployeeApproved() }}
+                        >
+                          {!isLoading ? (
+                            <>
+                              Save & Close
+                            </>
+                          ) : (
+                            <>
+                              {
+                                <Spinner animation="border" variant="light" size='sm' />
+                              }
+                            </>)
+                          }
+                        </Button>
+
+                      </>) : null
+                  }
+                </div>
+              </>
+            ) : (
+              <>
+                <Timeline align="alternate">
+                  {dataLavel && dataLavel.map((item, index) => {
+                    return (<>
+                      <TimelineItem key={index}>
+                        <TimelineOppositeContent>
+                          <Typography variant="body2" color="textSecondary">
+                            Create date:{moment(item?.created_at).format('DD-MM-YYYY HH:mm:ss')}
+                          </Typography>
+                          {
+                            item?.levels == 0 ? (
+                              <>
+                                <Typography color="textSecondary" style={{ marginLeft: 10 }} >
+                                  Created Form..
+                                </Typography>
+
+                              </>
+                            ) : item?.levels == 1 ? (
+                              <>
+                                {
+                                  item?.formstatus == 0 || item?.formstatus == 1 ? (
+                                    <>
+                                      <Typography color="textSecondary" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', marginLeft: 10 }} >
+                                        Waiting..
+                                      </Typography>
+
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Typography color="textSecondary" style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', marginLeft: 10 }} >
+                                        Approve
+                                      </Typography>
+                                    </>
+                                  )
+                                }
+                              </>
+                            ) : item?.levels == 2 ? (
+                              <>
+                              </>
+                            ) : item?.levels == 3 ? (
+                              <>
+                              </>
+                            ) : item?.levels == 4 ? (
+                              <>
+                              </>
+                            ) : item?.levels == 5 ? (
+                              <>
+                              </>
+                            ) : null
+                          }
+                        </TimelineOppositeContent>
+                        <TimelineSeparator>
+                          <TimelineDot>
+                            {
+                              item?.levels == 0 ? (
+                                <>
+                                  <AccessAlarmIcon />
+
+                                </>
+                              ) : item?.levels == 1 ? (
+                                <>
+                                  {
+                                    item?.formstatus == 0 || item?.formstatus == 1 ?
+                                      (
+                                        <>
+                                          <AccessAlarmIcon />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircleOutlineIcon />
+                                        </>
+                                      )
+                                  }
+                                </>
+                              ) : item?.levels == 2 ? (
+                                <>
+                                  {
+                                    item?.formstatus == 0 || item?.formstatus == 1 ?
+                                      (
+                                        <>
+                                          <AccessAlarmIcon />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircleOutlineIcon />
+                                        </>
+                                      )
+                                  }
+
+                                </>
+                              ) : item?.levels == 3 ? (
+                                <>
+                                  {
+                                    item?.formstatus == 0 ?
+                                      (
+                                        <>
+                                          <AccessAlarmIcon />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircleOutlineIcon />
+                                        </>
+                                      )
+                                  }
+
+                                </>
+                              ) : item?.levels == 4 ? (
+                                <>
+                                  {
+                                    item?.formstatus == 0 ?
+                                      (
+                                        <>
+                                          <AccessAlarmIcon />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircleOutlineIcon />
+                                        </>
+                                      )
+                                  }
+
+                                </>
+                              ) : item?.levels == 5 ? (
+                                <>
+                                  {
+                                    item?.formstatus == 0 ?
+                                      (
+                                        <>
+                                          <AccessAlarmIcon />
+                                        </>
+                                      ) : (
+                                        <>
+                                          <CheckCircleOutlineIcon />
+                                        </>
+                                      )
+                                  }
+
+                                </>
+                              ) : null
+                            }
+
+                          </TimelineDot>
+                          <TimelineConnector />
+                        </TimelineSeparator>
+                        <TimelineContent>
+                          <Paper elevation={3} className={classes.paper}>
+                            <ComponentCell
+                              item={item}
+                              dataUser={dataUser}
+                            />
+                          </Paper>
+                        </TimelineContent>
+                      </TimelineItem>
+
+                    </>)
+                  })}
 
 
-            </Modal>
+                </Timeline>
 
-
-          </>)
-        }
+              </>
+            )
+          }
+        </Modal>
         <Breadcrumbs aria-label="breadcrumb" style={{ backgroundColor: '#ebedef' }}>
           <Link color="inherit" href="/" className={classes.link}>
             <HomeIcon className={classes.icon} />
@@ -422,11 +914,11 @@ export default function RequestForm() {
                     <TableBody>
                       {
                         datalist && datalist.map((item, index) => {
+
                           return (
                             <>
                               <TableRow key={index}>
                                 <TableCell>{index + 1}</TableCell>
-
                                 <TableCell>{item?.form_name}</TableCell>
                                 <TableCell>{moment(item?.created_at).format('DD-MM-YYYY')}</TableCell>
                                 <TableCell style={{ cursor: 'pointer' }}>{item?.created_by_name}</TableCell>
@@ -477,7 +969,7 @@ export default function RequestForm() {
                                     </>) : null
                                 }
                                 {
-                                  item?.formstatus == 5 ? (
+                                  item?.formstatus == 6 ? (
                                     <>
                                       <TableCell style={{ cursor: 'pointer' }}>
                                         <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} >
@@ -487,36 +979,39 @@ export default function RequestForm() {
                                       </TableCell>
                                     </>) : null
                                 }
-
                                 <TableCell style={{ cursor: 'pointer' }}>
                                   <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                    <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 30, marginRight: 5 }} onClick={() => OnViewForm(item?.form_id)}>
-                                      <small style={{ color: 'white' }}>edit</small>
-
+                                    <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 30, marginRight: 5 }}
+                                      // onClick={() => OnViewForm(item?.form_id)}
+                                      onClick={() => OnViewForm(item?.form_id)}
+                                    >
+                                      <small style={{ color: 'white' }}>View</small>
                                     </div>
-
                                     <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer' }}
-                                      onClick={() => { Onsetting(item?.user_id, item?.user_name, item?.form_id); handleShow() }}>
+                                      onClick={() => { Onsetting(item?.form_id, item?.approval_id); handleShow(); OnloadInformationsTimeline(item?.form_id) }}>
                                       <small style={{ color: 'white' }} >Setting</small>
                                     </div>
+                                    <div style={{ backgroundColor: '#33D7FF', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer', marginRight: 5 }}
+                                      onClick={() => {
+                                        CreateSenddate(item?.form_id, item?.approval_id, item?.formstatus);
+                                      }}>
+                                      <small style={{ color: 'white' }} >
+                                        Send
 
-
+                                      </small>
+                                    </div>
                                   </div>
-
                                 </TableCell>
 
                               </TableRow>
-
                             </>
                           )
                         })
                       }
-
                     </TableBody>
                     <TableHead style={{ backgroundColor: '#ebedef' }}>
                       <TableRow>
                         <TableCell>#</TableCell>
-
                         <TableCell>Form Name</TableCell>
                         <TableCell>Datetime</TableCell>
                         <TableCell>Created by</TableCell>
@@ -532,11 +1027,6 @@ export default function RequestForm() {
 
               </>)
           }
-
-
-
-
-
         </div>
         {
           datalist.length == 0 ? (<></>) : (<>
@@ -559,11 +1049,30 @@ export default function RequestForm() {
 
 
 
-      </div>
+      </div >
 
 
 
     </>
   )
 
+}
+function ComponentCell({ item, dataUser }) {
+  const filter = dataUser.filter((el) => el.level_uid == item?.level_uid);
+  return (<>
+    {
+      filter.map((data, index) => {
+        return (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', marginLeft: 10 }} key={index}>
+              <AccountCircleIcon style={{ fontSize: 40 }} />
+
+              <Typography style={{ marginLeft: 10, marginBottom: 10, marginTop: 5 }}>{data?.create_employee_name}</Typography>
+            </div>
+          </>
+
+        )
+      })
+    }
+  </>)
 }

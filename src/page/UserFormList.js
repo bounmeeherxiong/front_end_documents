@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Table from '@material-ui/core/Table';
@@ -11,6 +11,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import FolderIcon from '@material-ui/icons/Folder';
 import moment from "moment";
 import { Modal } from "react-bootstrap";
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Cookies from 'js-cookie';
 import Pagination from '@material-ui/lab/Pagination';
 import Button from "@material-ui/core/Button";
@@ -25,6 +27,9 @@ import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
 import { Spinner } from "react-bootstrap";
+import { LoginContext } from "../page/contexts/LoginContext";
+import SaveIcon from '@material-ui/icons/Save';
+import WarningIcon from '@material-ui/icons/Warning';
 const useStyles = makeStyles((theme) => ({
   table: {
     minWidth: 650,
@@ -38,8 +43,6 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(4),
   },
 }));
-
-
 export default function UserFormList() {
   const classes = useStyles();
   const Navigate = useNavigate();
@@ -48,15 +51,26 @@ export default function UserFormList() {
   const [show1, setShow1] = useState(false);
   const [listdata, setListdata] = useState([])
   const [employee_id, setEmployee_id] = useState('')
+  const [showSave, setShowSave] = useState(false);
+  const [number, setNumber] = useState()
   const [depart_id, setDepart_id] = useState('')
+  const [g_department_id, setG_department_id] = useState('')
+  const [listallemployee, setListallemployee] = useState([]);
+  const [listshowemployee, setListshowemployee] = useState([])
+  const [listpersion, setListpersion] = useState([]);
+  const [listcartdata, setListcartdata] = useState([])
   const [employee_name, setEmployee_name] = useState('')
   const [created_by_id, setcreated_by_id] = useState('')
   const [created_by_name, setCreated_by_name] = useState('')
   const [listdepartment, setListdepartment] = useState([])
+  const [openingsetting, setOpeningsetting] = useState(false)
+  const [ducument_no, setDucument_no] = useState(false)
   const [listempl, setListempl] = useState([])
   const [form_uid, setForm_uid] = useState('')
   const [count, setCount] = useState([])
+  const [signature,setSignature]=useState('')
   const [isLoading, setIsLoading,] = useState(false);
+  const { setId, setShowUserEditFormScreen } = useContext(LoginContext)
   let users = Cookies.get("user");
   let data = JSON.parse(users)
   let user_id = data?.user?.user_id
@@ -71,17 +85,24 @@ export default function UserFormList() {
   const handleShow1 = () => { setShow1(true) }
 
   const OnloadFormData = () => {
-    axios.get(`/api/req/req-timeline/${user_id}`).then((data) => {
-      setDataList([...data?.data?.data])
+    axios.get('/api/req/request-forms-user').then((data) => {
+      console.log("req-timeline=", data)
+      setDataList([...data?.data?.results])
     }).catch((err) => {
       console.log(err)
     })
   }
   const OnloadstatusFormData = () => {
-    axios.get(`/api/setting/Select-FormStatus/${user_id}/0`).then((data) => {
+    axios.get(`/api/setting/Select-FormStatus/0`).then((data) => {
       // console.log("data=",[...data?.data?.count][0].counts)
       // setCount([...data?.data?.counts][0].counts)
-
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+  const OnloadAllEmployee = () => {
+    axios.get('/api/setting/all-employee').then((data) => {
+      setListallemployee([...data?.data?.results])
     }).catch((err) => {
       console.log(err)
     })
@@ -93,11 +114,11 @@ export default function UserFormList() {
       console.log(err)
     ))
   }
-  const onDetailForm = (id) => {
-    Navigate(`/Form/${id}`);
-  }
+
   const onEditform = (id) => {
-    Navigate(`/UserEditFrom/${id}`)
+    // Navigate(`/UserEditFrom/${id}`)
+    setId(id)
+    setShowUserEditFormScreen(true)
   }
   const onGoViewApproved = (id) => {
     Navigate(`/ViewApproved/${id}`)
@@ -117,25 +138,25 @@ export default function UserFormList() {
       console.log(err)
     })
   }
-  const OnInsertbyapproverperson=()=>{
+  const OnInsertbyapproverperson = () => {
     setIsLoading(true)
-    let infordatada={
-      req_id:form_uid,
-      levels:1,
-      approver:employee_id,
-      created_by:user_id,
-      signature_status:0,
-      signature_uid:0,
-      request_status:1,
-      tokens:'ExponentPushToken[oypPPJFY0j4BPAPGNHzMUB]',
-      title:'by test',
-      subtitle:"testing",
-      content:'for me'
+    let infordatada = {
+      req_id: form_uid,
+      levels: 1,
+      approver: employee_id,
+      created_by: user_id,
+      signature_status: 0,
+      signature_uid: 0,
+      request_status: 1,
+      tokens: 'ExponentPushToken[oypPPJFY0j4BPAPGNHzMUB]',
+      title: 'by test',
+      subtitle: "testing",
+      content: 'for me'
     }
-    axios.post('/api/req-setting/insert',infordatada).then((data)=>{
+    axios.post('/api/req-setting/insert', infordatada).then((data) => {
       setShow1(false)
       setIsLoading(false)
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err)
     })
   }
@@ -152,6 +173,26 @@ export default function UserFormList() {
   const OnOptions1 = (e) => {
     setEmployee_id(e)
   }
+  const handleCloseOpenting = () => {
+    setOpeningsetting(false)
+
+  }
+  const handleCloseDucument_on = () => {
+    setDucument_no(false)
+  }
+  const handleClose = () => {
+    setShowSave(false)
+  };
+
+  const OnOptionschoose_number = (e) => {
+    setNumber(e)
+
+  }
+  const OnOptionsDepart = (e) => {
+    setG_department_id(e)
+    let list = listallemployee.filter((el) => el.department_id == e)
+    setListshowemployee([...list])
+  }
   const Oncreate = () => {
     let createdata = {
       req_id: form_uid,
@@ -165,15 +206,113 @@ export default function UserFormList() {
       console.log(err)
     })
   }
+  const Oncreateadd = () => {
+    const list = listshowemployee.filter((el) => el.employee_id == employee_id)
+    const name = [...list][0].employee_name
+    const cloneDataEm = [...listcartdata]
+    cloneDataEm.push(...list)
+    setListcartdata([...cloneDataEm])
+    const cloneData = [...listpersion]
+    cloneData.push({ approver_id: employee_id })
+    setListpersion([...cloneData])
+  }
+  const CreateEmployeeApproved = () => {
+    setIsLoading(true)
+    let createdate = {
+      max_approval: number,
+      req_id: form_uid,
+      details: listpersion
+    }
+    axios.post('/api/approval-req-setting/create-approval', createdate).then((data) => {
+      setShow1(false);
+      setIsLoading(false)
+      setNumber('');
+      setListpersion('');
+      setG_department_id('');
+      setEmployee_id('');
+      setListcartdata('')
+      OnloadFormData();
+    }).catch((err) => {
+      console.log(err)
+    })
+  }
+  const CreateSenddate = (req_id, approval_id, doc_no,signature_id) => {
+    if(signature_id === null){
+      return ;
+    }
+
+    if (doc_no === null) {
+      setDucument_no(true)
+    } else {
+      if (approval_id === null) {
+        setOpeningsetting(true)
+      } else {
+        setShowSave(true)
+        setIsLoading(true)
+        let informdata = {
+          req_id: req_id,
+          approver: approval_id,
+          comment:'',
+        }
+        axios.post('/api/req-setting/insert-setting', informdata).then((data) => {
+          setIsLoading(false)
+          OnloadFormData();
+          setShowSave(false)
+        }).catch((err) => {
+          console.log(err)
+
+        })
+
+      }
+    }
+  }
   useEffect(() => {
     OnloadFormData()
     OnloadstatusFormData();
     OnloadDepartment();
+    OnloadAllEmployee();
   }, [])
   return (
     <>
-
       <div style={{ width: '100%' }}>
+        <Modal show={ducument_no} onHide={handleCloseDucument_on} style={{ paddingTop: 50 }} size="sm">
+          <Modal.Header closeButton>
+            <span style={{ fontSize: 25, fontWeight: 'bold', paddingTop: 10, color: '#FF7733' }}>Warning</span>
+          </Modal.Header>
+          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+            <WarningIcon style={{ color: '#FF7733', marginLeft: 40, marginTop: 20, fontSize: 40 }} />
+            <small style={{ fontSize: 30, marginRight: 30, marginTop: 20 }}>Please setting Ducument no</small>
+          </div>
+        </Modal>
+
+        <Modal show={openingsetting} onHide={handleCloseOpenting} style={{ paddingTop: 50 }} size="sm">
+          <Modal.Header closeButton>
+            <span style={{ fontSize: 25, fontWeight: 'bold', paddingTop: 10, color: '#FF7733' }}>Warning</span>
+          </Modal.Header>
+          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+            <WarningIcon style={{ color: '#FF7733', marginLeft: 40, marginTop: 20, fontSize: 40 }} />
+            <small style={{ fontSize: 30, marginRight: 30, marginTop: 20 }}>Please setting</small>
+          </div>
+        </Modal>
+        <Modal show={showSave} onHide={handleClose} style={{ paddingTop: 50 }} size="sm">
+        <Modal.Header closeButton>
+          <span style={{ fontSize: 25, fontWeight: 'bold', paddingTop: 10, color: '#2eb85c' }}>Peding..</span>
+        </Modal.Header>
+        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+          {!isLoading ? (
+            <>
+              <CheckCircleIcon style={{ color: '#2eb85c', marginLeft: 40, marginTop: 20, fontSize: 40 }} />
+              <small style={{ fontSize: 30, marginRight: 35, marginTop: 20 }}>Successfully....</small>
+
+            </>
+          ) : (
+            <>
+              <CircularProgress style={{ marginLeft: 40, marginTop: 20, fontSize: 40 }} />
+              <small style={{ fontSize: 30, marginRight: 30, marginTop: 20 }}>Waiting....</small>
+            </>)
+          }
+        </div>
+      </Modal>
         <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="lg">
           <Modal.Header closeButton>
             <span style={{ fontSize: 14, paddingTop: 10 }}>
@@ -200,7 +339,6 @@ export default function UserFormList() {
                 </FormControl>
               </div>
             </div>
-
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-evenly', marginLeft: 10, marginTop: 10, width: '80%' }}>
               <small style={{ fontWeight: 'bold', fontSize: 15, marginTop: 20 }}>Choose Employee:</small>
               <div style={{ width: '50%', marginTop: -10 }}>
@@ -219,7 +357,6 @@ export default function UserFormList() {
                     }
                   </Select>
                 </FormControl>
-
               </div>
             </div>
           </div>
@@ -243,51 +380,124 @@ export default function UserFormList() {
                   }
                 </>)
               }
-
             </Button>
           </div>
         </Modal>
-
         <Modal show={show1} onHide={handleClosedel1} style={{ paddingTop: 50 }} size="lg">
           <Modal.Header closeButton>
             <span style={{ fontSize: 20, paddingTop: 10, fontWeight: 'bold' }}>
               Setting </span>
           </Modal.Header>
-          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 ,marginRight:15}}>
 
-            <small style={{ fontWeight: 'bold', fontSize: 20, marginTop: 20 }}>Approved by:</small>
+          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '50%', marginRight: 10 }}>
+              <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">Approved amout person</InputLabel>
+                <Select
+                  onChange={(e) => OnOptionschoose_number(e.target.value)}
+                  value={number}
+                >
+                  <MenuItem value='1'>1</MenuItem>
+                  <MenuItem value='2'>2</MenuItem>
+                  <MenuItem value='3'>3</MenuItem>
+                </Select>
+              </FormControl>
+              <FormControl className={classes.formControl} style={{ marginTop: 10 }}>
 
-            <FormControl className={classes.formControl} style={{ width: '80%', marginRight: 10 }}>
-              <InputLabel id="demo-simple-select-label">Choose Employee</InputLabel>
-              <Select
+                <InputLabel id="demo-simple-select-label">Choose Department</InputLabel>
+                <Select
+                  onChange={(e) => OnOptionsDepart(e.target.value)}
+                  value={g_department_id}
+                >
+                  {
+                    listdepartment && listdepartment.map((item, index) => {
+                      return (
+                        <MenuItem key={index} value={item?.department_id}>{item?.department_name}</MenuItem>
+                      )
+                    })
+                  }
+                </Select>
+              </FormControl>
+              <FormControl className={classes.formControl} style={{ marginTop: 10 }}>
+                <InputLabel id="demo-simple-select-label">Approved person</InputLabel>
+                <Select
+                  onChange={(e) => OnOptions1(e.target.value)}
+                  value={employee_id}
+                >
+                  {
+                    listshowemployee && listshowemployee.map((item, index) => {
+                      return (
+                        <MenuItem key={index} value={item?.employee_id}>{item?.employee_name}</MenuItem>
+                      )
+                    })
+                  }
+                </Select>
+              </FormControl>
+            </div>
+            <div style={{ width: '50%', marginTop: 20, border: '1px solid #ccc', backgroundColor: 'white', borderRadius: 10, marginRight: 20 }}>
+              <small style={{ fontSize: 12, fontWeight: 'bold', marginLeft: 10 }}>List Approved person</small>
+              <TableContainer>
+                <Table className={classes.table} size="small" aria-label="a dense table">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {
+                      listpersion.length == 0 ? (
+                        <>
+                          <div>
+                            <small style={{ fontSize: 20, fontWeight: 'bold', marginLeft: 100 }}>There are no data!</small>
+                          </div>
 
-                onChange={(e) => OnOptions1(e.target.value)}
-                value={employee_id}
-              >
-                {
-                  listdata && listdata.map((item, index) => {
-                    return (
-                      <MenuItem key={index} value={item?.employee_id}>{item?.employee_name}</MenuItem>
-                    )
-                  })
-                }
-              </Select>
-            </FormControl>
+                        </>) : (
+                        <>
+                          {
+                            listcartdata && listcartdata.map((data, index) => {
+                              return (
+                                <>
+                                  <TableRow key={index}>
+                                    <TableCell style={{ width: 10 }}>{index + 1}</TableCell>
+                                    <TableCell align="left">{data?.employee_name}</TableCell>
 
+                                  </TableRow>
+                                </>
+                              )
+                            })
+                          }
+
+                        </>
+                      )
+                    }
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10, marginRight: 15 }}>
-
+          <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', paddingTop: 10, marginLeft: 10, marginRight: 15 }}>
             <Button
-              style={{ marginBottom: 20, marginRight: 10 }}
+              style={{ marginBottom: 20 }}
               variant="contained"
               color="primary"
               className={classes.button}
               endIcon={<SendIcon>send</SendIcon>}
-              onClick={() => { OnInsertbyapproverperson() }}
+              onClick={() => { Oncreateadd() }}
+            >
+              Add Employee
+            </Button>
+            <Button
+              style={{ marginBottom: 20 }}
+              variant="contained"
+              color="primary"
+              className={classes.button}
+              endIcon={<SaveIcon>Save and new</SaveIcon>}
+              onClick={() => { CreateEmployeeApproved() }}
             >
               {!isLoading ? (
                 <>
-                  Send
+                  Save&New
                 </>
               ) : (
                 <>
@@ -296,7 +506,6 @@ export default function UserFormList() {
                   }
                 </>)
               }
-
             </Button>
           </div>
         </Modal>
@@ -375,9 +584,8 @@ export default function UserFormList() {
                         <TableRow>
                           <TableCell>#</TableCell>
                           <TableCell>Form Name</TableCell>
-                          <TableCell>Datetime</TableCell>
-                          <TableCell>Created by</TableCell>
-                          <TableCell>Approved Status</TableCell>
+                          <TableCell align="right">Ducument No</TableCell>
+                          <TableCell align="right">Datetime</TableCell>
                           <TableCell>Checking Status</TableCell>
                           <TableCell align="right">Actions</TableCell>
                         </TableRow>
@@ -385,170 +593,155 @@ export default function UserFormList() {
                       <TableBody>
                         {
                           dataList && dataList.map((data, index) => {
-
                             return (
-                              <>
-                                <TableRow key={index}>
-                                  <TableCell>{index + 1}</TableCell>
-                                  <TableCell>{data?.title}</TableCell>
-                                  <TableCell>{moment(data?.created_at).format('DD-MM-YYYY')}</TableCell>
-                                  <TableCell>{data?.createdby_name}</TableCell>
 
-                                  {
-                                    data?.req_status == 0 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Created</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.req_status == 1 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Requested</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.req_status == 2 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#f9b115', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>In Progress</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.req_status == 4 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Rejected</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.req_status == 5 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Draft</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.req_status == 3 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Approved</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.docno_status == 0 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Waiting...</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.docno_status == 2 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Completed...</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-                                  {
-                                    data?.docno_status == 1 ? (
-                                      <>
-                                        <TableCell style={{ cursor: 'pointer' }}>
-                                          <div style={{ backgroundColor: '#f9b115', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>Rejected...</small>
-                                          </div>
-
-                                        </TableCell>
-                                      </>) : null
-                                  }
-
-                                  <TableCell style={{ cursor: 'pointer' }}>
-                                    {
-                                      data?.docno_status == 1 ? (<>
-                                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                          <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 30, marginRight: 5 }}>
-                                            <small style={{ color: 'white' }}>edit</small>
-
-                                          </div>
-                                          <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 40, marginRight: 5 }}>
-                                            <small style={{ color: 'white' }}>cancel</small>
-                                          </div>
-                                          {
-
-                                          }
-                                          <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer' }}>
-                                            <small style={{ color: 'white' }} >Setting</small>
-                                          </div>
-
-                                        </div>
-                                      </>) : (<>
-
-                                        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
-                                          <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 30, marginRight: 5 }} onClick={() => { onEditform(data?.req_uid) }}>
-                                            <small style={{ color: 'white' }}>edit</small>
-
-                                          </div>
-                                          <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 40, marginRight: 5 }} onClick={() => { onEditform(data?.form_uid) }}>
-                                            <small style={{ color: 'white' }}>cancel</small>
-                                          </div>
-                                          {
-                                            data?.docno_status == 2 ? (<>
-                                              <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer' }} onClick={() => { Onsetting(data?.created_by, data?.username, data?.req_uid); handleShow1() }}>
-                                                <small style={{ color: 'white' }} >Setting</small>
-                                              </div>
-
-                                            </>) : (<>
-                                              <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer' }} onClick={() => { Onsetting(data?.created_by, data?.username, data?.req_uid); handleShow() }}>
-                                                <small style={{ color: 'white' }} >Setting</small>
-                                              </div>
-                                            </>)
-                                          }
-
-
-
-
+                              <TableRow key={index}>
+                                <TableCell>{index + 1}</TableCell>
+                                <TableCell>{data?.title}</TableCell>
+                                <TableCell align="right">{data?.doc_no}</TableCell>
+                                <TableCell align="right">{moment(data?.created_at).format('DD-MM-YYYY')}</TableCell>
+                                {
+                                  data?.req_status == 0 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>Created</small>
                                         </div>
 
-                                      </>)
-                                    }
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 1 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>waiting</small>
+                                        </div>
 
-                                  </TableCell>
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 2 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#f9b115', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>Completed </small>
+                                        </div>
 
-                                </TableRow>
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 3 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#2eb85c', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>requested</small>
+                                        </div>
 
-                              </>
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 4 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>In progress</small>
+                                        </div>
+
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 5 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>approved</small>
+                                        </div>
+
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 6 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>rejected </small>
+                                        </div>
+
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 7 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>canceled </small>
+                                        </div>
+
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                {
+                                  data?.req_status == 8 ? (
+                                    <>
+                                      <TableCell style={{ cursor: 'pointer' }}>
+                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 70 }} onClick={() => { onGoViewApproved(data?.form_uid) }}>
+                                          <small style={{ color: 'white' }}>draft </small>
+                                        </div>
+
+                                      </TableCell>
+                                    </>) : null
+                                }
+                                <TableCell style={{ cursor: 'pointer' }}>
+                                  {
+                                    data?.docno_status == 1 ? (<>
+                                      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 30, marginRight: 5 }}>
+                                          <small style={{ color: 'white' }}>edit</small>
+                                        </div>
+                                        <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer' }}>
+                                          <small style={{ color: 'white' }} >Setting</small>
+                                        </div>
+                                      </div>
+                                    </>) : (<>
+                                      <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end' }}>
+                                        <div style={{ backgroundColor: '#3399ff', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 30, marginRight: 5 }} onClick={() => { onEditform(data?.req_uid) }}>
+                                          <small style={{ color: 'white' }}>edit</small>
+                                        </div>
+                                        {
+                                          data?.docno_status == 2 ? (<>
+                                            <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer' }} onClick={() => { Onsetting(data?.created_by, data?.username, data?.req_uid); handleShow1() }}>
+                                              <small style={{ color: 'white' }} >Setting</small>
+                                            </div>
+
+                                          </>) : (<>
+                                            <div style={{ backgroundColor: '#e55353', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer' }} onClick={() => { Onsetting(data?.created_by, data?.username, data?.req_uid); handleShow() }}>
+                                              <small style={{ color: 'white' }} >Setting</small>
+                                            </div>
+                                          </>)
+                                        }
+                                        <div style={{ backgroundColor: '#33D7FF', borderRadius: 5, display: 'flex', justifyContent: 'center', width: 50, cursor: 'pointer', marginRight: 5 }}
+                                          onClick={() => { CreateSenddate(data?.req_uid, data?.approval_id, data?.doc_no,data?.signature_id) }}>
+                                          <small style={{ color: 'white' }} >
+                                          
+                                            Send
+                                          </small>
+                                        </div>
+                                      </div>
+                                    </>)
+                                  }
+                                </TableCell>
+
+                              </TableRow>
+
+
                             )
                           })
                         }
@@ -558,9 +751,8 @@ export default function UserFormList() {
                         <TableRow>
                           <TableCell>#</TableCell>
                           <TableCell>Form Name</TableCell>
-                          <TableCell>Datetime</TableCell>
-                          <TableCell>Created by</TableCell>
-                          <TableCell>Approved Status</TableCell>
+                          <TableCell align="right">Ducument No</TableCell>
+                          <TableCell align="right">Datetime</TableCell>
                           <TableCell>Checking Status</TableCell>
                           <TableCell align="right">Actions</TableCell>
                         </TableRow>

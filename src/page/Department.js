@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useContext, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -10,19 +10,12 @@ import TableRow from '@material-ui/core/TableRow';
 import { LoginContext } from "../page/contexts/LoginContext";
 import { makeStyles } from '@material-ui/core/styles';
 import Pagination from '@material-ui/lab/Pagination';
-import Button from "@material-ui/core/Button";
-import SendIcon from '@material-ui/icons/Send';
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
+
 import Typography from '@material-ui/core/Typography';
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
-import { Spinner } from "react-bootstrap";
-import MuiAlert from '@material-ui/lab/Alert';
 import moment from "moment";
 const useStyles = makeStyles((theme) => ({
     table: {
@@ -40,12 +33,13 @@ const useStyles = makeStyles((theme) => ({
 export const Department = () => {
     const classes = useStyles();
     const { id } = useParams();
-    const Navigate = useNavigate();
-    const { dataList } = useContext(LoginContext)
+
+    const { dataList, setShowUserusingFormScreen, setId } = useContext(LoginContext)
 
     const onViewForm = (id) => {
-
-        Navigate(`/UserusingForm/${id}`)
+        setShowUserusingFormScreen(true)
+        setId(id)
+       
     }
 
     return (
@@ -90,7 +84,7 @@ export const Department = () => {
                                                     <>
                                                         <TableRow key={index}>
                                                             <TableCell>{index + 1}</TableCell>
-                                                            <TableCell style={{ cursor: 'pointer',fontWeight:'bold' }} onClick={() => { onViewForm(data?.form_uid) }}>{data?.form_name}</TableCell>
+                                                            <TableCell style={{ cursor: 'pointer', fontWeight: 'bold' }} onClick={() => { onViewForm(data?.form_uid) }}>{data?.form_name}</TableCell>
                                                             <TableCell>{moment(data?.created_at).format('DD-MM-YYYY')}</TableCell>
                                                             <TableCell>{data?.username}</TableCell>
                                                             {
@@ -136,13 +130,13 @@ export const Department = () => {
 
             </div>
             <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }}>
-              <div>
+                <div>
 
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                <small style={{ fontSize: 25 }}>Pagination:</small>
-                <Pagination count={10} variant="outlined" shape="rounded" />
-              </div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <small style={{ fontSize: 25 }}>Pagination:</small>
+                    <Pagination count={10} variant="outlined" shape="rounded" />
+                </div>
 
             </div>
 

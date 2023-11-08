@@ -2,10 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Rnd } from 'react-rnd';
-import TextFormatIcon from '@material-ui/icons/TextFormat';
-import CheckBoxIcon from '@material-ui/icons/CheckBox';
-import BorderAllIcon from '@material-ui/icons/BorderAll';
-import InputIcon from '@material-ui/icons/Input';
 import SaveIcon from '@material-ui/icons/Save';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddIcon from '@material-ui/icons/Add';
@@ -21,7 +17,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
 import HomeIcon from '@material-ui/icons/Home';
 import GrainIcon from '@material-ui/icons/Grain';
-import CommentIcon from '@material-ui/icons/Comment';
+
+import { LoginContext } from "../page/contexts/LoginContext";
 const useStyles = makeStyles((theme) => ({
   root: {
     '& > *': {
@@ -35,10 +32,6 @@ export const UserusingForm = () => {
   let componentRef = useRef(null)
   const { id } = useParams();
   const [datatable, setDatatable] = useState([])
-  const [datatable1, setDatatable1] = useState([])
-  const [datatable2, setDatatable2] = useState([])
-  const [tableRow, setTableRow] = useState('')
-  const [tableColumn, setTableColumn] = useState('')
   const [show, setShow] = useState(false);
   const [showcoments, setShowcoments] = useState(false)
   const [uselable, setUselable] = useState([])
@@ -76,7 +69,7 @@ export const UserusingForm = () => {
   const [inputValues2, setInputValues2] = useState('')
   const [inputValues3, setInputValues3] = useState('')
   const [selectedImage, setSelectedImage] = useState([])
-  const [au_number, setAu_number] = useState('')
+
   const [showsave, setShowsave] = useState(false);
   const [widthsize, setWidthsize] = useState('')
   const [widthsize1, setWidthsize1] = useState('')
@@ -85,11 +78,9 @@ export const UserusingForm = () => {
   const [conditions, setConditions] = useState(false)
   const [formstatus, setformstatus] = useState('')
   const [tables, setTables] = useState([[]])
-  const [tables1, setTables1] = useState([[]])
-  const [tables2, setTables2] = useState([[]])
-  const [tables3, setTables3] = useState([[]])
-  const [tables4, setTables4] = useState([[]])
+
   const [saveAs, setSaveAs] = useState('')
+  const [isLoading, setIsLoading,] = useState(false);
 
   const [file, setFile] = useState();
   const [textarea, setTextarea] = useState('')
@@ -152,37 +143,11 @@ export const UserusingForm = () => {
   }
   const onSelectFile = (event) => {
     setFile(event.target.files);
-
   };
 
-
-  const OnUpdate = () => {
-    let informdataUpdate = {
-      req_uid: id,
-      UpdateDataCheckbox: usecheckbox,
-      UpdateDataLable: uselable,
-      UpdateSizeForInput: usetextlist,
-      UpdatePositionsOne: usetable,
-      DataTablepositionOneupdate: tablechidren,
-      UpdatePositionsTwo: '',
-      DataTablepositiontwoupdate: '',
-      UpdatePositionsThree: '',
-      DataTablepositionThreeupdate: '',
-      InsertDataCheckbox: datacheckbox,
-      InsertDataLable: datalable,
-      InsertSizeForInput: listtext,
-      InsertPositionOne: datatable,
-      DataTablepositionOne: tables,
-    }
-    axios.post("/api/req/update-request-form", informdataUpdate).then((data) => {
-      OnloadListData()
-    }).catch((err) => {
-      console.log(err)
-    })
-  }
   const OnCreate = async () => {
-    let images
-    setShowsave(false)
+    setIsLoading(true);
+    let images;
     if (!file) {
       images = 0
     } else {
@@ -192,7 +157,7 @@ export const UserusingForm = () => {
       }
       formData.append("file_name", file);
       let profileImageReturnName = await axios.post("/api/req/upload", formData);
-      images = profileImageReturnName.data;
+      images = Object.values(profileImageReturnName.data)[0][0]
     }
     let informdata = {
       form_id: id,
@@ -210,188 +175,16 @@ export const UserusingForm = () => {
       InsertPositionsThree: '',
       DataTablepositionThree: '',
       InsertSizeForInput: usetextlist,
-      file_name: images,
+      InsertDataImage: selectedImage,
+      file_name:images
     }
     axios.post("/api/req/insert-request-form", informdata).then((data) => {
-      console.log(data)
+      setIsLoading(true);
+      setShowsave(false)
     }).catch((err) => {
       console.log(err)
     })
   }
-
-  // const OnUpdateorformstatus = () => {
-  //   let informdataUpdate = {
-  //     form_uid: id,
-  //     UpdateDataCheckbox: usecheckbox,
-  //     UpdateDataLable: uselable,
-  //     UpdateSizeForInput: usetextlist,
-  //     UpdatePositionsOne: usetable,
-  //     DataTablepositionOneupdate: tablechidren,
-  //     UpdatePositionsTwo: '',
-  //     DataTablepositiontwoupdate: '',
-  //     UpdatePositionsThree: '',
-  //     DataTablepositionThreeupdate: '',
-  //     InsertDataCheckbox: datacheckbox,
-  //     InsertDataLable: datalable,
-  //     InsertSizeForInput: listtext,
-  //     InsertPositionOne: datatable,
-  //     DataTablepositionOne: tables,
-  //   }
-  //   axios.post("/api/form/update-form-draft", informdataUpdate).then((data) => {
-  //     OnloadListData()
-  //   }).catch((err) => {
-  //     console.log(err)
-  //   })
-  // }
-  const onCreateTable = () => {
-    if (datatable.length == 0) {
-      setShow(false)
-      setShowdeltable(true)
-      if (!tableRow || !tableColumn) return
-      const newItemtable = {
-        name: '',
-        positionX: 0,
-        positionY: 0,
-        width: 749,
-        height: 200,
-        countrow: tableRow,
-        type: 'table',
-      }
-      const cloneData = [...datatable]
-      cloneData.push(newItemtable)
-      setDatatable([...cloneData])
-      let item = [];
-      for (let i = 0; i < tableColumn; i++) {
-        let row = tableRow
-        let data;
-        if (row == 2) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 3) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 4) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 5) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 6) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 7) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 8) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 9) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 10) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        }
-        item.push(data)
-      }
-      setTables(item)
-
-    } else if (datatable1.length == 0) {
-      setShow(false)
-
-      if (!tableRow || !tableColumn) return
-      const newItemtable1 = {
-        name: '',
-        positionX: 0,
-        positionY: 0,
-        width: 749,
-        height: 200,
-        type: 'table',
-        countrow: tableRow,
-      }
-      const cloneData = [...datatable1]
-      cloneData.push(newItemtable1)
-      setDatatable1([...cloneData])
-      let item1 = [];
-      for (let i = 0; i < tableColumn; i++) {
-        let row = tableRow
-        let data;
-        if (row == 2) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 3) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 4) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 5) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 6) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 7) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 8) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 9) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 10) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        }
-        item1.push(data)
-      }
-      setTables1(item1)
-    } else if (datatable2.length == 0) {
-      setShow(false)
-
-      if (!tableRow || !tableColumn) return
-      const newItemtable2 = {
-        name: '',
-        positionX: 0,
-        positionY: 0,
-        width: 749,
-        height: 200,
-        type: 'table',
-        countrow: tableRow,
-      }
-      const cloneData = [...datatable2]
-      cloneData.push(newItemtable2)
-      setDatatable2([...cloneData])
-      let item2 = [];
-      for (let i = 0; i < tableColumn; i++) {
-        let row = tableRow
-        let data;
-        if (row == 2) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 3) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 4) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-        } else if (row == 5) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 6) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 7) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 8) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 9) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        } else if (row == 10) {
-          data = [{ name: '', value: '1', cols: 1, rows: 1, width: 80, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }, { name: '', value: '1', cols: 1, rows: 1, width: 100, height: 50 }]
-
-        }
-        item2.push(data)
-      }
-      setTables2(item2)
-    }
-  }
-
   const Onclickrow = () => {
 
     const array = tablechidren.map((item) => {
@@ -854,41 +647,7 @@ export const UserusingForm = () => {
 
         </div>
       </Modal>
-      <Modal show={show} onHide={handleClosedel} style={{ paddingTop: 50 }} size="sm">
-        <Modal.Header closeButton>
-          <span style={{ fontSize: 14, paddingTop: 10 }}>
-            Create table </span>
-        </Modal.Header>
-        <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', marginLeft: 10, marginTop: 10 }}>
-          <div>
-            <small>Enter Row and Column</small>
-            <input
-              placeholder="Row"
-              value={tableRow}
-              onChange={e => setTableRow(e.target.value)}
-              style={{ width: 60, marginLeft: 10 }} />
-          </div>
-          <div style={{ marginRight: 10 }}>
-            <input value={tableColumn}
-              placeholder="Column"
-              onChange={e => setTableColumn(e.target.value)}
-              style={{ width: 60, marginLeft: 10 }} />
-          </div>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 10, marginLeft: 10 }}>
-          <button
-            style={{
-              border: '1px solid #ccc',
-              borderRadius: 3,
-              paddingLeft: 20, paddingRight: 20,
-              backgroundColor: '#3f51b5',
-              color: '#fff'
-            }}
-            onClick={() => { onCreateTable() }}
-          >Create Table</button>
-        </div>
 
-      </Modal>
 
       <Modal show={showsave} onHide={handleCloseSavle} style={{ paddingTop: 50 }} size="sm">
         <Modal.Header closeButton>
@@ -952,14 +711,32 @@ export const UserusingForm = () => {
             </Button>
 
           </div>
+          <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 50, marginLeft: 10, marginRight: 37, cursor: 'pointer', height: 30, marginTop: 10 }}
+
+          >
+            <label htmlFor="contained-button-file" style={{ position: 'absolute' }}>
+              <Button variant="contained" color="primary" size="small" component="span">
+                Upload
+              </Button>
+            </label>
+            <input
+              style={{ color: 'white', width: 10, marginLeft: 30 }}
+              accept="image/*"
+              className={classes.input}
+              id="contained-button-file"
+              multiple
+              onChange={onSelectFile}
+              type="file"
+            />
+
+          </div>
 
 
 
           <ReactToPrint
             trigger={() =>
               <div style={{ border: '1px solid #ccc', borderRadius: 3, width: 80, marginLeft: 10, cursor: 'pointer', height: 30, marginTop: 10, marginRight: 17 }} >
-                {/* <PrintIcon style={{ color: '#fff' }} />
-                <small style={{ color: '#fff' }}  >Print</small> */}
+          
                 <Button
                   variant="contained"
                   color="primary"
@@ -1353,7 +1130,7 @@ export const UserusingForm = () => {
               )
             })
           }
-                    {
+          {
             selectedImage && selectedImage.map((e, index) => {
               return (
                 <Rnd

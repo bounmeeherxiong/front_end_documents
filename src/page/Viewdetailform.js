@@ -49,6 +49,7 @@ export default function Viewdetailform() {
   const [countRow2, setCountRow2] = useState('')
   const [countRow3, setCountRow3] = useState('')
   const [index1, setIndex1] = useState('')
+  const [selectedImage, setSelectedImage] = useState([])
   const [index2, setIndex2] = useState('')
   const [bold, setBold] = useState(false)
   const [editlable, setEditlable] = useState('')
@@ -107,11 +108,10 @@ export default function Viewdetailform() {
 
   const OnloadListData = () => {
     axios.get(`/api/req/find-Form-Id/${id}`).then((data) => {
-      // setformstatus([...data?.data?.dataForms][0].formstatus)
       setUsetable([...data?.data?.GetTable_position_one])
       setUsetable1([...data?.data?.GetTable_positions_two])
       setUsetable2([...data?.data?.GetTable_positions_three])
-      // setUsetable3([...data?.data?.datatable3])
+      setSelectedImage([...data?.data?.GetImage_positions])
       if ([...data?.data?.GetTable_position_one].length == 0) {
 
       } else {
@@ -155,8 +155,6 @@ export default function Viewdetailform() {
       comments_status: 5,
       request_status: 5
     }
-
-    console.log('datainform=', datainform)
     axios.post('/api/request-reply/insert-request-reply', datainform).then((data) => {
       setTextarea('')
       setShow(false)
@@ -861,7 +859,6 @@ export default function Viewdetailform() {
           }
           {
             usetable2 && usetable2.map((el, index) => {
-
               return (
                 <div key={index}>
                   <Rnd
@@ -966,7 +963,7 @@ export default function Viewdetailform() {
                   }}
                   onDragStop={(e, d) => onDragStoplableupdate(e, d, index)}
                   onClick={() => onClickOnElementupdate(index)}
-                  style={{ display: 'flex', justifyContent: 'flex-start', backgroundColor: 'red' }}
+                  style={{ display: 'flex', justifyContent: 'flex-start' }}
                 >
 
                   <small style={{ fontSize: el.font, fontWeight: el.fontWeight }}>{el.name}</small>
@@ -1082,6 +1079,23 @@ export default function Viewdetailform() {
                   />
                 </Rnd>
 
+              )
+            })
+          }
+                    {
+            selectedImage && selectedImage.map((e, index) => {
+              return (
+                <Rnd
+                  default={{
+                    x: e.positionX,
+                    y: e.positionY,
+                  }}
+                // onDragStop={(e, d) => { onDragImagelogo(e, d, index) }}
+                // onClick={() => { OnClickCheckimage(index) }}
+                >
+                  {/* <img key={index} src={`/assets/images/${e?.name}`} alt={`Image ${index + 1}`} style={{ width: `${e?.width}px`, height: `${e?.height}px` }} /> */}
+                  <img key={index} src={e.images} alt="Selected Picture" style={{ width: `${e?.width}px`, height: `${e?.height}px` }} />
+                </Rnd>
               )
             })
           }
